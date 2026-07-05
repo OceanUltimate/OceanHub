@@ -7,7 +7,7 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 -- ============================================================
--- KONFIGURASI
+-- CONFIG
 -- ============================================================
 local CONFIG = {
     ICON            = "rbxassetid://84718341622420",
@@ -16,12 +16,12 @@ local CONFIG = {
     SUPABASE_URL    = "https://SUPABASE_PROJECT_ID.supabase.co",
     SUPABASE_ANON   = "SUPABASE_ANON_KEY_KAMU",
 
-    -- Warna tema ocean
+    -- Ocean theme colors
     COLOR_BG        = Color3.fromRGB(7, 18, 32),
     COLOR_CARD      = Color3.fromRGB(10, 25, 50),
     COLOR_ACCENT    = Color3.fromRGB(0, 160, 230),
     COLOR_FREE      = Color3.fromRGB(180, 40, 55),
-    -- PREMIUM sekarang kuning/gold sesuai referensi
+    -- PREMIUM uses yellow/gold
     COLOR_PREMIUM   = Color3.fromRGB(200, 160, 20),
     COLOR_PREM_TEXT = Color3.fromRGB(255, 230, 120),
     COLOR_PREM_BG   = Color3.fromRGB(120, 90, 0),
@@ -29,7 +29,7 @@ local CONFIG = {
     COLOR_MUTED     = Color3.fromRGB(100, 150, 200),
     COLOR_CORNER    = Color3.fromRGB(0, 160, 230),
 
-    -- FOLDER 2 – Game gratis
+    -- FOLDER 2 – Free games
     GAMES_FREE = {
         { name = "🍎 Blox Fruits",      icon = "🍎", place = 2753915549 },
         { name = "🐾 Pet Simulator X",  icon = "🐾", place = 6284583030 },
@@ -38,7 +38,7 @@ local CONFIG = {
         { name = "🔫 Arsenal",          icon = "🔫", place = 286090429  },
     },
 
-    -- FOLDER 3 – Game premium (kuning, lebih banyak game)
+    -- FOLDER 3 – Premium games (yellow/gold, more games)
     GAMES_PREMIUM = {
         { name = "🍎 Blox Fruits",      icon = "🍎", place = 2753915549 },
         { name = "🐾 Pet Simulator X",  icon = "🐾", place = 6284583030 },
@@ -51,7 +51,7 @@ local CONFIG = {
 }
 
 -- ============================================================
--- UTILITY
+-- UTILITIES
 -- ============================================================
 local function makeCorner(radius)
     local c = Instance.new("UICorner")
@@ -86,12 +86,14 @@ local function tween(obj, props, duration, style, direction)
 end
 
 -- ============================================================
--- VERIFIKASI KEY (Supabase)
+-- KEY VERIFICATION (Supabase)
+-- BUG FIX: now also checks expires_at so expired keys are rejected
+-- even when is_active is still true in the database.
 -- ============================================================
 local function verifyKeySupabase(key)
     local ok, result = pcall(function()
         local url = CONFIG.SUPABASE_URL
-            .. "/rest/v1/keys?key=eq." .. key
+            .. "/rest/v1/keys?key=eq." .. HttpService:UrlEncode(key)
             .. "&select=key,is_active,expires_at"
         local response = HttpService:GetAsync(url, true, {
             ["apikey"]        = CONFIG.SUPABASE_ANON,
@@ -100,7 +102,30 @@ local function verifyKeySupabase(key)
         local data = HttpService:JSONDecode(response)
         if data and #data > 0 then
             local row = data[1]
-            if row.is_active == true then return true end
+            if row.is_active ~= true then return false end
+            -- Check expiry if the field exists and is not null
+            if row.expires_at and row.expires_at ~= "" and row.expires_at ~= nil then
+                -- expires_at is an ISO-8601 string e.g. "2025-12-31T00:00:00Z"
+                -- os.time() gives current UTC epoch; parse expires_at manually
+                local yr, mo, dy, hr, mn, sc = row.expires_at:match(
+                    "(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)"
+                )
+                if yr then
+                    -- Simple expiry check using os.time with UTC offset
+                    local expEpoch = os.time({
+                        year  = tonumber(yr),
+                        month = tonumber(mo),
+                        day   = tonumber(dy),
+                        hour  = tonumber(hr),
+                        min   = tonumber(mn),
+                        sec   = tonumber(sc),
+                    })
+                    if os.time() > expEpoch then
+                        return false  -- Key expired
+                    end
+                end
+            end
+            return true
         end
         return false
     end)
@@ -109,14 +134,14 @@ local function verifyKeySupabase(key)
 end
 
 -- ============================================================
--- HAPUS GUI LAMA
+-- DESTROY OLD GUI
 -- ============================================================
 if PlayerGui:FindFirstChild("OceanHubLoader") then
     PlayerGui:FindFirstChild("OceanHubLoader"):Destroy()
 end
 
 -- ============================================================
--- SCREENGUI
+-- SCREEN GUI
 -- ============================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name           = "OceanHubLoader"
@@ -134,21 +159,24 @@ Overlay.ZIndex                = 1
 Overlay.Parent                = ScreenGui
 
 -- ============================================================
--- FOLDER 1 – MAIN CARD (Free / Premium + Key)
+-- FOLDER 1 – MAIN CARD (Free / Premium + Key Input)
 -- ============================================================
 local Card = Instance.new("Frame")
 Card.Name                  = "Card"
+-- BUG FIX: start at full size with transparency=1 here, NOT after parenting,
+-- to avoid a 1-frame flash of 0-size before the tween sets it back.
+-- We set Size properly and let the entry animation control transparency.
 Card.Size                  = UDim2.new(0, 420, 0, 320)
 Card.Position              = UDim2.fromScale(0.5, 0.5)
 Card.AnchorPoint           = Vector2.new(0.5, 0.5)
 Card.BackgroundColor3      = CONFIG.COLOR_CARD
-Card.BackgroundTransparency = 0.08
+Card.BackgroundTransparency = 1
 Card.ZIndex                = 2
 Card.Parent                = ScreenGui
 makeCorner(20).Parent = Card
 makeStroke(CONFIG.COLOR_ACCENT, 1.5, 0.35).Parent = Card
 
--- Corner glow lights
+-- Corner glow lights (decorative)
 local cornerDefs = {
     { pos = UDim2.new(0, -15, 0, -15), anchor = Vector2.new(0, 0) },
     { pos = UDim2.new(1, 15,  0, -15), anchor = Vector2.new(1, 0) },
@@ -188,7 +216,7 @@ Icon.Parent                  = Header
 makeCorner(12).Parent = Icon
 makeStroke(CONFIG.COLOR_ACCENT, 1.5, 0.4).Parent = Icon
 
--- fallback emoji icon kalau gambar tidak load
+-- Fallback emoji shown if image fails to load
 local IconEmoji = Instance.new("TextLabel")
 IconEmoji.Size               = UDim2.fromScale(1, 1)
 IconEmoji.BackgroundTransparency = 1
@@ -211,7 +239,7 @@ HubTitle.Position            = UDim2.new(0, 0, 0, 6)
 HubTitle.BackgroundTransparency = 1
 HubTitle.Text                = CONFIG.HUB_NAME
 HubTitle.TextColor3          = CONFIG.COLOR_TEXT
-HubTitle.TextSize            = 22
+HubTitle.TextSize            = 26
 HubTitle.Font                = Enum.Font.GothamBold
 HubTitle.TextXAlignment      = Enum.TextXAlignment.Left
 HubTitle.ZIndex              = 6
@@ -223,13 +251,13 @@ HubSub.Position              = UDim2.new(0, 0, 0, 38)
 HubSub.BackgroundTransparency = 1
 HubSub.Text                  = "LOADER " .. CONFIG.VERSION
 HubSub.TextColor3            = CONFIG.COLOR_MUTED
-HubSub.TextSize              = 11
+HubSub.TextSize              = 13
 HubSub.Font                  = Enum.Font.GothamMedium
 HubSub.TextXAlignment        = Enum.TextXAlignment.Left
 HubSub.ZIndex                = 6
 HubSub.Parent                = TitleBlock
 
--- Divider
+-- Horizontal divider line
 local Divider = Instance.new("Frame")
 Divider.Size                  = UDim2.new(1, -32, 0, 1)
 Divider.Position              = UDim2.new(0, 16, 0, 92)
@@ -238,14 +266,14 @@ Divider.BackgroundTransparency = 0.65
 Divider.ZIndex                = 4
 Divider.Parent                = Card
 
--- "Pilih tipe akses kamu"
+-- "Choose your access type"
 local Subtitle = Instance.new("TextLabel")
 Subtitle.Size                 = UDim2.new(1, -32, 0, 22)
 Subtitle.Position             = UDim2.new(0, 16, 0, 104)
 Subtitle.BackgroundTransparency = 1
-Subtitle.Text                 = "Pilih tipe akses kamu"
+Subtitle.Text                 = "Choose your access type"
 Subtitle.TextColor3           = CONFIG.COLOR_MUTED
-Subtitle.TextSize             = 13
+Subtitle.TextSize             = 15
 Subtitle.Font                 = Enum.Font.Gotham
 Subtitle.ZIndex               = 4
 Subtitle.Parent               = Card
@@ -264,7 +292,7 @@ rowLayout.SortOrder          = Enum.SortOrder.LayoutOrder
 rowLayout.Padding            = UDim.new(0, 14)
 rowLayout.Parent             = BtnRow
 
--- ── FREE button ──
+-- ── FREE button ──────────────────────────────────────────────
 local BtnFree = Instance.new("TextButton")
 BtnFree.Name                 = "BtnFree"
 BtnFree.Size                 = UDim2.new(0.5, -7, 1, 0)
@@ -283,7 +311,7 @@ FreeTitleLbl.Position        = UDim2.new(0, 0, 0.5, -22)
 FreeTitleLbl.BackgroundTransparency = 1
 FreeTitleLbl.Text            = "🆓 Free"
 FreeTitleLbl.TextColor3      = Color3.fromRGB(255, 200, 205)
-FreeTitleLbl.TextSize        = 17
+FreeTitleLbl.TextSize        = 20
 FreeTitleLbl.Font            = Enum.Font.GothamBold
 FreeTitleLbl.ZIndex          = 6
 FreeTitleLbl.Parent          = BtnFree
@@ -292,15 +320,15 @@ local FreeDescLbl = Instance.new("TextLabel")
 FreeDescLbl.Size             = UDim2.new(1, -16, 0, 18)
 FreeDescLbl.Position         = UDim2.new(0, 8, 0.5, 8)
 FreeDescLbl.BackgroundTransparency = 1
-FreeDescLbl.Text             = "Akses game gratis"
+FreeDescLbl.Text             = "Free game access"
 FreeDescLbl.TextColor3       = Color3.fromRGB(255, 180, 185)
 FreeDescLbl.TextTransparency = 0.25
-FreeDescLbl.TextSize         = 11
+FreeDescLbl.TextSize         = 13
 FreeDescLbl.Font             = Enum.Font.Gotham
 FreeDescLbl.ZIndex           = 6
 FreeDescLbl.Parent           = BtnFree
 
--- ── PREMIUM button (kuning/gold) ──
+-- ── PREMIUM button (yellow/gold) ─────────────────────────────
 local BtnPremium = Instance.new("TextButton")
 BtnPremium.Name              = "BtnPremium"
 BtnPremium.Size              = UDim2.new(0.5, -7, 1, 0)
@@ -319,7 +347,7 @@ PremTitleLbl.Position        = UDim2.new(0, 0, 0.5, -22)
 PremTitleLbl.BackgroundTransparency = 1
 PremTitleLbl.Text            = "👑 Premium"
 PremTitleLbl.TextColor3      = CONFIG.COLOR_PREM_TEXT
-PremTitleLbl.TextSize        = 17
+PremTitleLbl.TextSize        = 20
 PremTitleLbl.Font            = Enum.Font.GothamBold
 PremTitleLbl.ZIndex          = 6
 PremTitleLbl.Parent          = BtnPremium
@@ -328,15 +356,15 @@ local PremDescLbl = Instance.new("TextLabel")
 PremDescLbl.Size             = UDim2.new(1, -16, 0, 18)
 PremDescLbl.Position         = UDim2.new(0, 8, 0.5, 8)
 PremDescLbl.BackgroundTransparency = 1
-PremDescLbl.Text             = "Akses penuh dengan key"
+PremDescLbl.Text             = "Full access with key"
 PremDescLbl.TextColor3       = Color3.fromRGB(255, 220, 100)
 PremDescLbl.TextTransparency = 0.2
-PremDescLbl.TextSize         = 11
+PremDescLbl.TextSize         = 13
 PremDescLbl.Font             = Enum.Font.Gotham
 PremDescLbl.ZIndex           = 6
 PremDescLbl.Parent           = BtnPremium
 
--- Close button (main card)
+-- Close button (main card X)
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size                = UDim2.new(0, 28, 0, 28)
 CloseBtn.Position            = UDim2.new(1, -14, 0, -14)
@@ -352,13 +380,13 @@ CloseBtn.Parent              = Card
 makeCorner(14).Parent = CloseBtn
 
 CloseBtn.MouseButton1Click:Connect(function()
-    tween(Card,    { Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1 }, 0.3)
+    tween(Card,    { BackgroundTransparency = 1 }, 0.3)
     tween(Overlay, { BackgroundTransparency = 1 }, 0.3)
     task.delay(0.35, function() ScreenGui:Destroy() end)
 end)
 
 -- ============================================================
--- TOAST NOTIFIKASI
+-- TOAST NOTIFICATION
 -- ============================================================
 local function showToast(msg, color)
     local toast = Instance.new("Frame")
@@ -377,7 +405,7 @@ local function showToast(msg, color)
     lbl.BackgroundTransparency = 1
     lbl.Text                 = msg
     lbl.TextColor3           = Color3.fromRGB(230, 248, 255)
-    lbl.TextSize             = 14
+    lbl.TextSize             = 16
     lbl.Font                 = Enum.Font.GothamMedium
     lbl.ZIndex               = 81
     lbl.Parent               = toast
@@ -390,7 +418,7 @@ local function showToast(msg, color)
 end
 
 -- ============================================================
--- HELPER: BUAT MODAL
+-- HELPER: CREATE MODAL
 -- ============================================================
 local function createModal(titleText, modalHeight, accentColor, titleColor)
     local ac = accentColor or CONFIG.COLOR_ACCENT
@@ -409,7 +437,7 @@ local function createModal(titleText, modalHeight, accentColor, titleColor)
     makeCorner(16).Parent = modal
     makeStroke(ac, 1.5, 0.3).Parent = modal
 
-    -- Corner lights (pakai warna accent)
+    -- Corner lights (uses accent color)
     local mCorners = {
         { pos = UDim2.new(0,-12,0,-12), anchor = Vector2.new(0,0) },
         { pos = UDim2.new(1,12, 0,-12), anchor = Vector2.new(1,0) },
@@ -436,7 +464,7 @@ local function createModal(titleText, modalHeight, accentColor, titleColor)
     titleLbl.BackgroundTransparency = 1
     titleLbl.Text            = titleText
     titleLbl.TextColor3      = tc
-    titleLbl.TextSize        = 15
+    titleLbl.TextSize        = 17
     titleLbl.Font            = Enum.Font.GothamBold
     titleLbl.TextXAlignment  = Enum.TextXAlignment.Left
     titleLbl.ZIndex          = 32
@@ -492,10 +520,15 @@ local function createModal(titleText, modalHeight, accentColor, titleColor)
 end
 
 -- ============================================================
--- HELPER: BUAT GAME LIST
+-- HELPER: CREATE GAME LIST
+-- BUG FIX: game button TextColor3 now uses accentColor-aware coloring.
+-- For premium (gold accent) buttons now show gold text instead of blue.
 -- ============================================================
 local function createGameList(parent, games, startY, accentColor, onSelect)
     local ac = accentColor or CONFIG.COLOR_ACCENT
+    -- Decide text color: if accent is gold/warm use prem text, else use standard blue-white
+    local isPremium = (ac == CONFIG.COLOR_PREMIUM)
+    local textColor = isPremium and CONFIG.COLOR_PREM_TEXT or Color3.fromRGB(180, 220, 255)
 
     local scroll = Instance.new("ScrollingFrame")
     scroll.Size              = UDim2.new(1, -32, 1, -(startY + 14))
@@ -520,8 +553,8 @@ local function createGameList(parent, games, startY, accentColor, onSelect)
         btn.BackgroundColor3 = ac
         btn.BackgroundTransparency = 0.82
         btn.Text             = g.name
-        btn.TextColor3       = Color3.fromRGB(180, 220, 255)
-        btn.TextSize         = 14
+        btn.TextColor3       = textColor
+        btn.TextSize         = 15
         btn.Font             = Enum.Font.GothamMedium
         btn.TextXAlignment   = Enum.TextXAlignment.Left
         btn.ZIndex           = 36
@@ -544,30 +577,30 @@ local function createGameList(parent, games, startY, accentColor, onSelect)
 end
 
 -- ============================================================
--- FOLDER 2 – MODAL GAME FREE (biru/merah)
+-- FOLDER 2 – FREE GAME MODAL (blue/red)
 -- ============================================================
 local FreeModal, openFreeModal, closeFreeModal = createModal(
-    "🆓 Pilih Game  —  Free",
+    "🆓 Select Game  —  Free",
     340,
-    CONFIG.COLOR_ACCENT,  -- accent biru
+    CONFIG.COLOR_ACCENT,
     CONFIG.COLOR_TEXT
 )
 
 createGameList(FreeModal, CONFIG.GAMES_FREE, 64, CONFIG.COLOR_ACCENT, function(g)
     closeFreeModal()
-    showToast("🆓 Memuat " .. g.name .. "...", CONFIG.COLOR_FREE)
+    showToast("🆓 Loading " .. g.name .. "...", CONFIG.COLOR_FREE)
     task.delay(1.5, function()
         print("[OceanHub] FREE: Loading " .. g.name)
     end)
 end)
 
 -- ============================================================
--- FOLDER 1 (Key Input) – MODAL KEY
+-- FOLDER 1 (Key Input) – KEY MODAL
 -- ============================================================
 local KeyModal, openKeyModal, closeKeyModal = createModal(
-    "🔑 Masukkan Key Premium",
+    "🔑 Enter Premium Key",
     210,
-    CONFIG.COLOR_PREMIUM,  -- border kuning
+    CONFIG.COLOR_PREMIUM,
     CONFIG.COLOR_PREM_TEXT
 )
 
@@ -576,11 +609,11 @@ KeyInput.Size                = UDim2.new(1, -32, 0, 42)
 KeyInput.Position            = UDim2.new(0, 16, 0, 64)
 KeyInput.BackgroundColor3    = Color3.fromRGB(60, 45, 5)
 KeyInput.BackgroundTransparency = 0.5
-KeyInput.PlaceholderText     = "Masukkan key kamu... (OCEAN-xxxx)"
+KeyInput.PlaceholderText     = "Enter your key... (OCEAN-xxxx)"
 KeyInput.PlaceholderColor3   = Color3.fromRGB(160, 130, 60)
 KeyInput.Text                = ""
 KeyInput.TextColor3          = CONFIG.COLOR_PREM_TEXT
-KeyInput.TextSize            = 13
+KeyInput.TextSize            = 14
 KeyInput.Font                = Enum.Font.GothamMedium
 KeyInput.ClearTextOnFocus    = false
 KeyInput.ZIndex              = 36
@@ -593,9 +626,9 @@ local KeyError = Instance.new("TextLabel")
 KeyError.Size                = UDim2.new(1, -32, 0, 18)
 KeyError.Position            = UDim2.new(0, 16, 0, 112)
 KeyError.BackgroundTransparency = 1
-KeyError.Text                = "Key tidak valid atau sudah expired!"
+KeyError.Text                = "Invalid or expired key!"
 KeyError.TextColor3          = Color3.fromRGB(255, 110, 110)
-KeyError.TextSize            = 12
+KeyError.TextSize            = 13
 KeyError.Font                = Enum.Font.Gotham
 KeyError.TextXAlignment      = Enum.TextXAlignment.Left
 KeyError.Visible             = false
@@ -607,9 +640,9 @@ VerifyBtn.Size               = UDim2.new(1, -32, 0, 42)
 VerifyBtn.Position           = UDim2.new(0, 16, 0, 150)
 VerifyBtn.BackgroundColor3   = Color3.fromRGB(130, 95, 5)
 VerifyBtn.BackgroundTransparency = 0.25
-VerifyBtn.Text               = "Verifikasi Key"
+VerifyBtn.Text               = "Verify Key"
 VerifyBtn.TextColor3         = CONFIG.COLOR_PREM_TEXT
-VerifyBtn.TextSize           = 14
+VerifyBtn.TextSize           = 15
 VerifyBtn.Font               = Enum.Font.GothamBold
 VerifyBtn.ZIndex             = 36
 VerifyBtn.Parent             = KeyModal
@@ -624,50 +657,50 @@ VerifyBtn.MouseLeave:Connect(function()
 end)
 
 -- ============================================================
--- FOLDER 3 – MODAL GAME PREMIUM (kuning/gold)
+-- FOLDER 3 – PREMIUM GAME MODAL (yellow/gold)
 -- ============================================================
 local PremiumModal, openPremiumModal, closePremiumModal = createModal(
-    "👑 Pilih Game  —  Premium",
+    "👑 Select Game  —  Premium",
     420,
-    CONFIG.COLOR_PREMIUM,  -- border & accent kuning
+    CONFIG.COLOR_PREMIUM,
     CONFIG.COLOR_PREM_TEXT
 )
 
 createGameList(PremiumModal, CONFIG.GAMES_PREMIUM, 64, CONFIG.COLOR_PREMIUM, function(g)
     closePremiumModal()
-    showToast("👑 Memuat " .. g.name .. "...", CONFIG.COLOR_PREMIUM)
+    showToast("👑 Loading " .. g.name .. "...", CONFIG.COLOR_PREMIUM)
     task.delay(1.5, function()
         print("[OceanHub] PREMIUM: Loading " .. g.name)
     end)
 end)
 
 -- ============================================================
--- VERIFIKASI KEY LOGIC
+-- KEY VERIFICATION LOGIC
 -- ============================================================
 VerifyBtn.MouseButton1Click:Connect(function()
     local key = KeyInput.Text:match("^%s*(.-)%s*$")
     KeyError.Visible = false
 
     if key == "" then
-        KeyError.Text    = "Key tidak boleh kosong!"
+        KeyError.Text    = "Key cannot be empty!"
         KeyError.Visible = true
         return
     end
 
-    VerifyBtn.Text   = "Memverifikasi..."
+    VerifyBtn.Text   = "Verifying..."
     VerifyBtn.Active = false
 
     task.spawn(function()
         local valid = verifyKeySupabase(key)
-        VerifyBtn.Text   = "Verifikasi Key"
+        VerifyBtn.Text   = "Verify Key"
         VerifyBtn.Active = true
 
         if valid then
             closeKeyModal()
             task.delay(0.3, openPremiumModal)
-            showToast("✅ Key valid! Selamat datang Premium!", CONFIG.COLOR_PREMIUM)
+            showToast("✅ Key valid! Welcome to Premium!", CONFIG.COLOR_PREMIUM)
         else
-            KeyError.Text    = "Key tidak valid atau sudah expired!"
+            KeyError.Text    = "Invalid or expired key!"
             KeyError.Visible = true
         end
     end)
@@ -693,18 +726,17 @@ end)
 BtnPremium.MouseButton1Click:Connect(openKeyModal)
 
 -- ============================================================
--- ANIMASI MASUK
+-- ENTRY ANIMATION
+-- BUG FIX: Card is already parented above at correct size with
+-- BackgroundTransparency=1. We tween it in cleanly from there.
+-- No more Size=0→tween-back that caused a flash/jump on Back easing.
 -- ============================================================
-Card.Size                    = UDim2.new(0, 0, 0, 0)
-Card.BackgroundTransparency  = 1
 Overlay.BackgroundTransparency = 1
-
 tween(Overlay, { BackgroundTransparency = 0.3 }, 0.3)
 task.delay(0.1, function()
     tween(Card, {
-        Size = UDim2.new(0, 420, 0, 320),
         BackgroundTransparency = 0.08
-    }, 0.38, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    }, 0.38, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 end)
 
 -- ============================================================
@@ -741,4 +773,4 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
-print("[OceanHub] Loader berhasil dimuat!")
+print("[OceanHub] Loader initialized successfully!")
