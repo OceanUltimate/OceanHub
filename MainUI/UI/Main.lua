@@ -1800,7 +1800,34 @@ end
 -- -------BADGE-------
 -- ============================================================
 local function createBadge(config, parent, order)
-    config = config o
+    config = config or {}
+    local text    = config.Text    or "Badge"
+    local color   = config.Color   or Theme.ACCENT
+    local bgColor = config.BgColor or Theme.CARD3
+
+    local Badge = U.new("Frame", {
+        Name                   = "Badge_"..text,
+        Size                   = UDim2.new(0, 0, 0, 22),
+        AutomaticSize          = Enum.AutomaticSize.X,
+        BackgroundColor3       = bgColor,
+        BackgroundTransparency = 0.35,
+        ZIndex                 = 20,
+        LayoutOrder            = order,
+    }, parent)
+    U.corner(11, Badge)
+    U.stroke(color, 1, 0.55, Badge)
+    U.pad(0, 0, 8, 8, Badge)
+
+    local lbl = U.label(Badge, text, 11, color, K.FONT_BOLD, Enum.TextXAlignment.Center, 21)
+    lbl.Size         = UDim2.new(0, 0, 1, 0)
+    lbl.AutomaticSize = Enum.AutomaticSize.X
+
+    local obj = { _frame = Badge }
+    function obj:Set(v) lbl.Text = v end
+    function obj:Get()  return lbl.Text end
+    return obj
+end
+
 -- ============================================================
 -- -------ANIMATION LIBRARY-------
 -- ============================================================
@@ -2687,9 +2714,106 @@ local function createAccordion(config, parent, order)
 end
 
 -- ============================================================
+-- -------CREATE FRAME (base definition)-------
+-- BUG FIX: createFrame was never defined; the patch below referenced
+-- a nil value causing an immediate crash. Defined here with all standard
+-- component methods, then extended by the patch below.
+-- ============================================================
+local function createFrame(config, parent, order)
+    config = config or {}
+    local title    = config.Title   or ""
+    local color    = config.Color   or Theme.ACCENT
+    local open     = config.Open    ~= false
+    local desc     = config.Desc    or ""
+
+    local hasTitle = title ~= ""
+    local headerH  = hasTitle and 34 or 0
+
+    local Container = U.new("Frame", {
+        Name                   = "Frame_"..(title ~= "" and title or tostring(order)),
+        Size                   = UDim2.new(1, 0, 0, 0),
+        AutomaticSize          = Enum.AutomaticSize.Y,
+        BackgroundColor3       = Theme.CARD2,
+        BackgroundTransparency = 0.38,
+        ZIndex                 = 20,
+        LayoutOrder            = order,
+    }, parent)
+    U.corner(10, Container)
+    U.stroke(color, 1, 0.68, Container)
+
+    if hasTitle then
+        local hdr = U.new("Frame", {
+            Size             = UDim2.new(1, 0, 0, headerH),
+            BackgroundColor3 = Theme.CARD,
+            BackgroundTransparency = 0.42,
+            ZIndex           = 21,
+        }, Container)
+        U.corner(10, hdr)
+        -- Square off bottom corners of header
+        U.new("Frame", {
+            Size                   = UDim2.new(1, 0, 0, 10),
+            Position               = UDim2.new(0, 0, 1, -10),
+            BackgroundColor3       = Theme.CARD,
+            BackgroundTransparency = 0.42,
+            BorderSizePixel        = 0,
+            ZIndex                 = 21,
+        }, hdr)
+        -- Left accent bar
+        local bar = U.new("Frame", {
+            Size             = UDim2.new(0, 3, 0, 16),
+            Position         = UDim2.new(0, 10, 0.5, 0),
+            AnchorPoint      = Vector2.new(0, 0.5),
+            BackgroundColor3 = color,
+            ZIndex           = 22,
+        }, hdr)
+        U.corner(2, bar)
+        local titleLbl = U.label(hdr, title, 13, Theme.TEXT, K.FONT_BOLD, Enum.TextXAlignment.Left, 22)
+        titleLbl.Size     = UDim2.new(1, -24, 1, 0)
+        titleLbl.Position = UDim2.new(0, 20, 0, 0)
+    end
+
+    local content = U.new("Frame", {
+        Name                   = "Content",
+        Size                   = UDim2.new(1, 0, 0, 0),
+        AutomaticSize          = Enum.AutomaticSize.Y,
+        BackgroundTransparency = 1,
+        ZIndex                 = 21,
+        Visible                = open,
+    }, Container)
+    U.list(Enum.FillDirection.Vertical, 6, nil, content)
+    U.pad(8, 10, 10, 10, content)
+
+    local frameOrder = 0
+    local obj = { _frame = Container, _content = content }
+
+    local function nextOrder() frameOrder = frameOrder + 1 return frameOrder end
+    obj._order = 0
+    function obj:_next() obj._order = obj._order + 1 return obj._order end
+
+    function obj:CreateButton(cfg)         return createButton(cfg, self._content, self:_next()) end
+    function obj:CreateExecuteButton(cfg)  return createExecuteButton(cfg, self._content, self:_next()) end
+    function obj:CreateToggle(cfg)         return createToggle(cfg, self._content, self:_next()) end
+    function obj:CreateSlider(cfg)         return createSlider(cfg, self._content, self:_next()) end
+    function obj:CreateDropdown(cfg)       return createDropdown(cfg, self._content, self:_next()) end
+    function obj:CreateInput(cfg)          return createInput(cfg, self._content, self:_next()) end
+    function obj:CreateTextArea(cfg)       return createTextArea(cfg, self._content, self:_next()) end
+    function obj:CreateKeybind(cfg)        return createKeybind(cfg, self._content, self:_next()) end
+    function obj:CreateColorPicker(cfg)    return createColorPicker(cfg, self._content, self:_next()) end
+    function obj:CreateProgressBar(cfg)    return createProgressBar(cfg, self._content, self:_next()) end
+    function obj:CreateSeparator(cfg)      return createSeparator(cfg, self._content, self:_next()) end
+    function obj:CreateLabel(cfg)          return createLabel(cfg, self._content, self:_next()) end
+    function obj:CreateBadge(cfg)          return createBadge(cfg, self._content, self:_next()) end
+
+    return obj
+end
+
+-- ============================================================
 -- -------EXTEND FRAME WITH NEW COMPONENTS-------
 -- ============================================================
--- Patch createFrame to include new component methods
+-- Patch createFrame to add extended components defined later in this file.
+-- BUG FIX: previously _origCreateFrame = createFrame was called when
+-- createFrame was nil, crashing immediately. Now createFrame is defined
+-- above and the patch safely wraps it.
 local _origCreateFrame = createFrame
 createFrame = function(config, parent, order)
     local f = _origCreateFrame(config, parent, order)
@@ -2723,8 +2847,310 @@ createFrame = function(config, parent, order)
 end
 
 -- ============================================================
+-- -------CREATE WINDOW (base definition)-------
+-- BUG FIX: createWindow was never defined; the patch below referenced
+-- a nil value. Defined here as a proper base, then extended by patch.
+-- ============================================================
+local function createWindow(config)
+    config = config or {}
+    local title    = config.Title    or "OceanHub"
+    local subtitle = config.Subtitle or ""
+    local icon     = config.Icon     or K.ICON
+    local minW     = config.MinWidth or 560
+    local minH     = config.MinHeight or 380
+
+    -- Destroy old instance of same window
+    local pg = Players.LocalPlayer:WaitForChild("PlayerGui")
+    local existing = pg:FindFirstChild("OceanUI_"..title)
+    if existing then existing:Destroy() end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name           = "OceanUI_"..title
+    gui.ResetOnSpawn   = false
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.Parent         = pg
+
+    -- Dim overlay
+    local overlay = U.new("Frame", {
+        Size                   = UDim2.fromScale(1, 1),
+        BackgroundColor3       = Color3.fromRGB(0, 0, 0),
+        BackgroundTransparency = 0.55,
+        ZIndex                 = K.Z_BASE - 1,
+    }, gui)
+
+    -- Main window frame
+    local win = U.new("Frame", {
+        Name                   = "Window",
+        Size                   = UDim2.new(0, minW, 0, minH),
+        Position               = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint            = Vector2.new(0.5, 0.5),
+        BackgroundColor3       = Theme.BG,
+        BackgroundTransparency = 0.04,
+        ZIndex                 = K.Z_BASE,
+    }, gui)
+    U.corner(14, win)
+    U.stroke(Theme.ACCENT, 1.5, 0.35, win)
+    U.shadow(win, K.Z_BASE, UDim2.new(1, 40, 1, 40), UDim2.new(0, -20, 0, -20))
+    U.glow(win, Theme.CORNER, K.Z_BASE)
+
+    -- Top bar
+    local topBar = U.new("Frame", {
+        Name             = "TopBar",
+        Size             = UDim2.new(1, 0, 0, 48),
+        BackgroundColor3 = Theme.TOPBAR,
+        BackgroundTransparency = 0.25,
+        ZIndex           = K.Z_BASE + 1,
+    }, win)
+    U.corner(14, topBar)
+    U.new("Frame", {
+        Size                   = UDim2.new(1, 0, 0, 14),
+        Position               = UDim2.new(0, 0, 1, -14),
+        BackgroundColor3       = Theme.TOPBAR,
+        BackgroundTransparency = 0.25,
+        BorderSizePixel        = 0,
+        ZIndex                 = K.Z_BASE + 1,
+    }, topBar)
+
+    -- Window icon
+    local iconImg = U.new("ImageLabel", {
+        Size               = UDim2.new(0, 30, 0, 30),
+        Position           = UDim2.new(0, 10, 0.5, 0),
+        AnchorPoint        = Vector2.new(0, 0.5),
+        BackgroundTransparency = 1,
+        Image              = icon,
+        ScaleType          = Enum.ScaleType.Fit,
+        ZIndex             = K.Z_BASE + 2,
+    }, topBar)
+    U.corner(7, iconImg)
+
+    local titleLbl = U.label(topBar, title, 15, Theme.TEXT, K.FONT_BOLD, Enum.TextXAlignment.Left, K.Z_BASE+2)
+    titleLbl.Size     = UDim2.new(1, -130, 0, 22)
+    titleLbl.Position = UDim2.new(0, 48, 0, 6)
+
+    if subtitle ~= "" then
+        local subLbl = U.label(topBar, subtitle, 11, Theme.TEXT_MUTED, K.FONT_REG, Enum.TextXAlignment.Left, K.Z_BASE+2)
+        subLbl.Size     = UDim2.new(1, -130, 0, 14)
+        subLbl.Position = UDim2.new(0, 48, 0, 28)
+    end
+
+    -- Close button
+    local closeBtn = U.new("TextButton", {
+        Size                   = UDim2.new(0, 24, 0, 24),
+        Position               = UDim2.new(1, -34, 0.5, 0),
+        AnchorPoint            = Vector2.new(0, 0.5),
+        BackgroundColor3       = Theme.DANGER,
+        BackgroundTransparency = 0.4,
+        Text                   = "✕",
+        TextColor3             = Color3.fromRGB(255, 200, 200),
+        TextSize               = 12,
+        Font                   = K.FONT_BOLD,
+        ZIndex                 = K.Z_BASE + 3,
+    }, topBar)
+    U.corner(12, closeBtn)
+    closeBtn.MouseButton1Click:Connect(function()
+        U.tween(win, { BackgroundTransparency = 1 }, 0.25)
+        U.tween(overlay, { BackgroundTransparency = 1 }, 0.25)
+        task.delay(0.3, function() gui:Destroy() end)
+    end)
+
+    -- Content area (below topbar)
+    local contentArea = U.new("Frame", {
+        Name                   = "ContentArea",
+        Size                   = UDim2.new(1, 0, 1, -48),
+        Position               = UDim2.new(0, 0, 0, 48),
+        BackgroundTransparency = 1,
+        ZIndex                 = K.Z_BASE + 1,
+    }, win)
+
+    -- Tab bar (left sidebar)
+    local tabBar = U.new("Frame", {
+        Name             = "TabBar",
+        Size             = UDim2.new(0, 120, 1, 0),
+        BackgroundColor3 = Theme.SIDEBAR,
+        BackgroundTransparency = 0.25,
+        ZIndex           = K.Z_BASE + 2,
+    }, contentArea)
+    U.new("Frame", {
+        Size                   = UDim2.new(0, 14, 1, 0),
+        Position               = UDim2.new(1, -14, 0, 0),
+        BackgroundColor3       = Theme.SIDEBAR,
+        BackgroundTransparency = 0.25,
+        BorderSizePixel        = 0,
+        ZIndex                 = K.Z_BASE + 2,
+    }, tabBar)
+    U.corner(14, tabBar)
+
+    local tabList = U.new("ScrollingFrame", {
+        Size                    = UDim2.new(1, 0, 1, -8),
+        Position                = UDim2.new(0, 0, 0, 4),
+        BackgroundTransparency  = 1,
+        BorderSizePixel         = 0,
+        ScrollBarThickness      = 0,
+        AutomaticCanvasSize     = Enum.AutomaticSize.Y,
+        CanvasSize              = UDim2.new(0, 0, 0, 0),
+        ZIndex                  = K.Z_BASE + 3,
+    }, tabBar)
+    U.list(Enum.FillDirection.Vertical, 4, nil, tabList)
+    U.pad(6, 6, 6, 6, tabList)
+
+    -- Page area (right of sidebar)
+    local pageArea = U.new("Frame", {
+        Name                   = "PageArea",
+        Size                   = UDim2.new(1, -120, 1, 0),
+        Position               = UDim2.new(0, 120, 0, 0),
+        BackgroundTransparency = 1,
+        ZIndex                 = K.Z_BASE + 2,
+        ClipsDescendants       = true,
+    }, contentArea)
+
+    -- Drag logic
+    local dragStart, startPos, dragging2
+    topBar.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging2 = true
+            dragStart = inp.Position
+            startPos  = win.Position
+            inp.Changed:Connect(function()
+                if inp.UserInputState == Enum.UserInputState.End then dragging2 = false end
+            end)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(inp)
+        if dragging2 and inp.UserInputType == Enum.UserInputType.MouseMovement then
+            local d = inp.Position - dragStart
+            win.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset+d.X, startPos.Y.Scale, startPos.Y.Offset+d.Y)
+        end
+    end)
+
+    -- Entry animation
+    win.BackgroundTransparency = 1
+    overlay.BackgroundTransparency = 1
+    U.tween(overlay, { BackgroundTransparency = 0.55 }, 0.3)
+    task.delay(0.05, function()
+        U.tween(win, { BackgroundTransparency = 0.04 }, 0.35, K.EASE_BACK)
+    end)
+
+    local tabs       = {}
+    local activeTab  = nil
+    local tabOrder   = 0
+
+    local wObj = { _gui = gui, _win = win }
+
+    function wObj:CreateTab(cfg)
+        cfg = cfg or {}
+        local tname = cfg.Name or "Tab"
+        local ticon = cfg.Icon or ""
+        tabOrder = tabOrder + 1
+
+        -- Tab button in sidebar
+        local tabBtn = U.new("TextButton", {
+            Size                   = UDim2.new(1, 0, 0, 32),
+            BackgroundColor3       = Theme.ACCENT,
+            BackgroundTransparency = 1,
+            Text                   = "",
+            ZIndex                 = K.Z_BASE + 4,
+            LayoutOrder            = tabOrder,
+        }, tabList)
+        U.corner(7, tabBtn)
+
+        local tabLbl = U.label(tabBtn, (ticon ~= "" and ticon.."  " or "")..tname, 12, Theme.TEXT_MUTED, K.FONT_MED, Enum.TextXAlignment.Left, K.Z_BASE+5)
+        tabLbl.Size     = UDim2.new(1, -12, 1, 0)
+        tabLbl.Position = UDim2.new(0, 8, 0, 0)
+
+        local activeBar = U.new("Frame", {
+            Size             = UDim2.new(0, 3, 0.6, 0),
+            Position         = UDim2.new(0, 0, 0.2, 0),
+            BackgroundColor3 = Theme.ACCENT,
+            BackgroundTransparency = 1,
+            ZIndex           = K.Z_BASE + 5,
+        }, tabBtn)
+        U.corner(2, activeBar)
+
+        -- Page scroll area
+        local page = U.new("ScrollingFrame", {
+            Name                    = "Page_"..tname,
+            Size                    = UDim2.fromScale(1, 1),
+            BackgroundTransparency  = 1,
+            BorderSizePixel         = 0,
+            ScrollBarThickness      = 3,
+            ScrollBarImageColor3    = Theme.ACCENT,
+            ScrollBarImageTransparency = 0.4,
+            AutomaticCanvasSize     = Enum.AutomaticSize.Y,
+            CanvasSize              = UDim2.new(0, 0, 0, 0),
+            ZIndex                  = K.Z_BASE + 3,
+            Visible                 = false,
+        }, pageArea)
+        U.list(Enum.FillDirection.Vertical, 8, nil, page)
+        U.pad(12, 12, 12, 12, page)
+
+        local frameOrder2 = 0
+        local tObj = { _page = page }
+
+        function tObj:_next() frameOrder2 = frameOrder2 + 1 return frameOrder2 end
+        function tObj:CreateFrame(cfg2) return createFrame(cfg2, self._page, self:_next()) end
+        function tObj:CreateButton(cfg2) return createButton(cfg2, self._page, self:_next()) end
+        function tObj:CreateExecuteButton(cfg2) return createExecuteButton(cfg2, self._page, self:_next()) end
+        function tObj:CreateToggle(cfg2) return createToggle(cfg2, self._page, self:_next()) end
+        function tObj:CreateSlider(cfg2) return createSlider(cfg2, self._page, self:_next()) end
+        function tObj:CreateDropdown(cfg2) return createDropdown(cfg2, self._page, self:_next()) end
+        function tObj:CreateInput(cfg2) return createInput(cfg2, self._page, self:_next()) end
+        function tObj:CreateTextArea(cfg2) return createTextArea(cfg2, self._page, self:_next()) end
+        function tObj:CreateKeybind(cfg2) return createKeybind(cfg2, self._page, self:_next()) end
+        function tObj:CreateColorPicker(cfg2) return createColorPicker(cfg2, self._page, self:_next()) end
+        function tObj:CreateProgressBar(cfg2) return createProgressBar(cfg2, self._page, self:_next()) end
+        function tObj:CreateSeparator(cfg2) return createSeparator(cfg2, self._page, self:_next()) end
+        function tObj:CreateLabel(cfg2) return createLabel(cfg2, self._page, self:_next()) end
+        function tObj:CreateBadge(cfg2) return createBadge(cfg2, self._page, self:_next()) end
+        function tObj:CreateStatCard(cfg2) return createStatCard(cfg2, self._page, self:_next()) end
+
+        local function activateTab()
+            -- Deactivate all
+            for _, t in ipairs(tabs) do
+                t.page.Visible = false
+                U.tween(t.btn,    { BackgroundTransparency = 1 }, 0.15)
+                U.tween(t.lbl,    { TextColor3 = Theme.TEXT_MUTED }, 0.15)
+                U.tween(t.bar,    { BackgroundTransparency = 1 }, 0.15)
+            end
+            -- Activate this tab
+            page.Visible = true
+            U.tween(tabBtn,    { BackgroundTransparency = 0.82 }, 0.15)
+            U.tween(tabLbl,    { TextColor3 = Theme.TEXT }, 0.15)
+            U.tween(activeBar, { BackgroundTransparency = 0 }, 0.15)
+            activeTab = tObj
+        end
+
+        table.insert(tabs, { btn = tabBtn, lbl = tabLbl, bar = activeBar, page = page, obj = tObj })
+
+        -- Auto-activate first tab
+        if #tabs == 1 then activateTab() end
+
+        tabBtn.MouseButton1Click:Connect(activateTab)
+        tabBtn.MouseEnter:Connect(function()
+            if activeTab ~= tObj then
+                U.tween(tabBtn, { BackgroundTransparency = 0.92 }, 0.1)
+            end
+        end)
+        tabBtn.MouseLeave:Connect(function()
+            if activeTab ~= tObj then
+                U.tween(tabBtn, { BackgroundTransparency = 1 }, 0.1)
+            end
+        end)
+
+        return tObj
+    end
+
+    function wObj:Notify(cfg)
+        return Notify(gui, cfg)
+    end
+
+    return wObj
+end
+
+-- ============================================================
 -- -------EXTEND WINDOW WITH DIALOG-------
 -- ============================================================
+-- BUG FIX: previously _origCreateWindow = createWindow was called when
+-- createWindow was nil. Now createWindow is defined above and the patch works.
 local _origCreateWindow = createWindow
 createWindow = function(config)
     local w = _origCreateWindow(config)
