@@ -1,6 +1,4 @@
-ini di buat seperti rayfield, tapi ini buatan sendiri, seperti buatan tab,frame,dll. ini sebagai seperti "Create Tab, Create Frame" "Jangan di ikutin karena hanya contoh" dan untuk membuat UInya ada di folder MainUI/UI/. karena ini hanya menggunakan fungsi seperti yang tadi aku bilangkan, jadi tidak ada library tambahan. dan ini hanya sebagai Loader agar si MainScript itu bsia menggunakannyaa
-folder ini berisi untuk seperti 
----tab dan fungsi agar bisa bikin tab di UInya, dll--[[
+--[[
 ================================================================
    ██████╗  ██████╗███████╗ █████╗ ███╗   ██╗██╗   ██╗██╗
   ██╔═══██╗██╔════╝██╔════╝██╔══██╗████╗  ██║██║   ██║██║
@@ -11,7 +9,7 @@ folder ini berisi untuk seperti
   
   OceanHub UI Library — LoaderUI/Main.lua
   
-  Entry point loader. Fetches OceanUI.lua from GitHub
+  Entry point loader. Fetches OceanUI from GitHub
   and returns the library to the calling MainScript.
   
   Usage:
@@ -31,15 +29,17 @@ folder ini berisi untuk seperti
 -- CONFIG
 -- ============================================================
 local REPO_RAW  = "https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/"
-local UI_PATH   = "MainUI/UI/Components/OceanUI.lua"
+-- BUG FIX: was pointing to "MainUI/UI/Components/OceanUI.lua" which does not exist.
+-- Correct path is "MainUI/UI/Main.lua"
+local UI_PATH   = "MainUI/UI/Main.lua"
 local VERSION   = "1.0.0"
 local CACHE_KEY = "_OceanUI_v"..VERSION
 
 -- ============================================================
 -- SERVICES
 -- ============================================================
-local HttpService = game:GetService("HttpService")
-local Players     = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Players      = game:GetService("Players")
 
 -- ============================================================
 -- CACHE — avoid reloading if already in _G
@@ -195,7 +195,7 @@ VerTag.Parent                 = SplashBg
 -- HELPER: Update splash progress
 -- ============================================================
 local function setProgress(pct, status)
-    game:GetService("TweenService"):Create(
+    TweenService:Create(
         ProgFill,
         TweenInfo.new(0.25, Enum.EasingStyle.Quad),
         { Size = UDim2.new(pct, 0, 1, 0) }
@@ -205,32 +205,29 @@ end
 
 -- ============================================================
 -- HELPER: Fade & destroy splash
+-- BUG FIX: old version tried to tween BackgroundTransparency on ALL
+-- descendants including UICorner/UIStroke which don't have that property,
+-- causing silent errors. Now we only tween valid instance types.
 -- ============================================================
 local function destroySplash()
-    game:GetService("TweenService"):Create(
+    TweenService:Create(
         SplashBg,
         TweenInfo.new(0.4, Enum.EasingStyle.Quad),
         { BackgroundTransparency = 1 }
     ):Play()
+
     for _, obj in ipairs(SplashBg:GetDescendants()) do
-        if obj:IsA("TextLabel") or obj:IsA("ImageLabel") or obj:IsA("Frame") then
-            game:GetService("TweenService"):Create(obj,
-                TweenInfo.new(0.4),
-                { BackgroundTransparency = 1 }
-            ):Play()
-            if obj:IsA("TextLabel") then
-                game:GetService("TweenService"):Create(obj,
-                    TweenInfo.new(0.4),
-                    { TextTransparency = 1 }
-                ):Play()
-            elseif obj:IsA("ImageLabel") then
-                game:GetService("TweenService"):Create(obj,
-                    TweenInfo.new(0.4),
-                    { ImageTransparency = 1 }
-                ):Play()
-            end
+        if obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
+            TweenService:Create(obj, TweenInfo.new(0.4), { BackgroundTransparency = 1 }):Play()
+        elseif obj:IsA("TextLabel") or obj:IsA("TextButton") then
+            TweenService:Create(obj, TweenInfo.new(0.4), { BackgroundTransparency = 1 }):Play()
+            TweenService:Create(obj, TweenInfo.new(0.4), { TextTransparency = 1 }):Play()
+        elseif obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+            TweenService:Create(obj, TweenInfo.new(0.4), { ImageTransparency = 1 }):Play()
         end
+        -- UICorner, UIStroke, UIListLayout etc. are intentionally skipped
     end
+
     task.delay(0.5, function()
         if Splash and Splash.Parent then
             Splash:Destroy()
@@ -252,6 +249,11 @@ local success, errMsg = pcall(function()
 
     local src = game:HttpGet(REPO_RAW .. UI_PATH)
 
+    -- BUG FIX: guard against empty response before attempting loadstring
+    if not src or src == "" then
+        error("Received empty response from GitHub — check UI_PATH")
+    end
+
     setProgress(0.6, "Compiling library...")
     task.wait(0.05)
 
@@ -266,7 +268,7 @@ local success, errMsg = pcall(function()
     library = fn()
 
     if not library then
-        error("OceanUI returned nil — check OceanUI.lua")
+        error("OceanUI returned nil — check MainUI/UI/Main.lua return statement")
     end
 
     setProgress(1.0, "Ready!")
@@ -275,7 +277,7 @@ end)
 
 if not success then
     -- Show error on splash
-    StatusText.Text      = "Error: " .. tostring(errMsg)
+    StatusText.Text       = "Error: " .. tostring(errMsg)
     StatusText.TextColor3 = Color3.fromRGB(220, 60, 60)
     ProgFill.BackgroundColor3 = Color3.fromRGB(200, 50, 60)
     task.delay(4, destroySplash)
