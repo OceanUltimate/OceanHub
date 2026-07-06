@@ -93,9 +93,9 @@ local function tween(obj, props, duration, style, direction)
     TweenService:Create(obj, info, props):Play()
 end
 
--- KEY VERIFICATION: delegated to Supabase component
 local function verifyKeySupabase(key)
-    return Supabase.VerifyKey(key)
+    local playerName = game:GetService("Players").LocalPlayer.Name
+    return Supabase.VerifyKey(key, playerName)
 end
 
 -- ============================================================
@@ -655,16 +655,16 @@ VerifyBtn.MouseButton1Click:Connect(function()
     VerifyBtn.Active = false
 
     task.spawn(function()
-        local valid = verifyKeySupabase(key)
+        local valid, msg = verifyKeySupabase(key)
         VerifyBtn.Text   = "Verify Key"
         VerifyBtn.Active = true
 
         if valid then
             closeKeyModal()
             task.delay(0.3, openPremiumModal)
-            showToast("✅ Key valid! Welcome to Premium!", CONFIG.COLOR_PREMIUM)
+            showToast("✅ " .. (msg or "Key valid! Welcome to Premium!"), CONFIG.COLOR_PREMIUM)
         else
-            KeyError.Text    = "Invalid or expired key!"
+            KeyError.Text    = msg or "Invalid or expired key!"
             KeyError.Visible = true
         end
     end)
