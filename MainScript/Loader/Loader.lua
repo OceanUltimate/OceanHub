@@ -37,24 +37,14 @@ local CONFIG = {
     COLOR_MUTED     = Color3.fromRGB(100, 150, 200),
     COLOR_CORNER    = Color3.fromRGB(0, 160, 230),
 
-    -- FOLDER 2 – Free games
     GAMES_FREE = {
-        { name = "🍎 Blox Fruits",      icon = "🍎", place = 2753915549 },
-        { name = "🐾 Pet Simulator X",  icon = "🐾", place = 6284583030 },
-        { name = "⚔️ Anime Adventures", icon = "⚔️", place = 7329895630 },
-        { name = "🏙️ Da Hood",          icon = "🏙️", place = 2788229376 },
-        { name = "🔫 Arsenal",          icon = "🔫", place = 286090429  },
+        { name = "🍋 Sell Lemons", folder = "Sell Lemons" },
+        { name = "⚙️ Default",     folder = "Default"     },
     },
 
-    -- FOLDER 3 – Premium games (yellow/gold, more games)
     GAMES_PREMIUM = {
-        { name = "🍎 Blox Fruits",      icon = "🍎", place = 2753915549 },
-        { name = "🐾 Pet Simulator X",  icon = "🐾", place = 6284583030 },
-        { name = "⚔️ Anime Adventures", icon = "⚔️", place = 7329895630 },
-        { name = "🏙️ Da Hood",          icon = "🏙️", place = 2788229376 },
-        { name = "🔫 Arsenal",          icon = "🔫", place = 286090429  },
-        { name = "🚔 Jailbreak",        icon = "🚔", place = 606849621  },
-        { name = "🚪 Doors",            icon = "🚪", place = 6516141723 },
+        { name = "🍋 Sell Lemons", folder = "Sell Lemons" },
+        { name = "⚙️ Default",     folder = "Default"     },
     },
 }
 
@@ -385,26 +375,6 @@ local function createModal(titleText, modalHeight, accentColor, titleColor)
     makeCorner(16).Parent = modal
     makeStroke(ac, 1.5, 0.3).Parent = modal
 
-    -- Corner lights (uses accent color)
-    local mCorners = {
-        { pos = UDim2.new(0,-12,0,-12), anchor = Vector2.new(0,0) },
-        { pos = UDim2.new(1,12, 0,-12), anchor = Vector2.new(1,0) },
-        { pos = UDim2.new(0,-12,1,12),  anchor = Vector2.new(0,1) },
-        { pos = UDim2.new(1,12, 1,12),  anchor = Vector2.new(1,1) },
-    }
-    for _, cp in ipairs(mCorners) do
-        local l = Instance.new("ImageLabel")
-        l.Size               = UDim2.new(0, 80, 0, 80)
-        l.Position           = cp.pos
-        l.AnchorPoint        = cp.anchor
-        l.BackgroundTransparency = 1
-        l.Image              = "rbxassetid://5028857084"
-        l.ImageColor3        = ac
-        l.ImageTransparency  = 0.6
-        l.ZIndex             = 31
-        l.Parent             = modal
-    end
-
     -- Title
     local titleLbl = Instance.new("TextLabel")
     titleLbl.Size            = UDim2.new(1, -50, 0, 36)
@@ -499,10 +469,10 @@ local function createGameList(parent, games, startY, accentColor, onSelect)
         local btn = Instance.new("TextButton")
         btn.Size             = UDim2.new(1, 0, 0, 44)
         btn.BackgroundColor3 = ac
-        btn.BackgroundTransparency = 0.82
+        btn.BackgroundTransparency = 0.6
         btn.Text             = g.name
-        btn.TextColor3       = textColor
-        btn.TextSize         = 15
+        btn.TextColor3       = Color3.fromRGB(255, 255, 255)
+        btn.TextSize         = 16
         btn.Font             = Enum.Font.GothamMedium
         btn.TextXAlignment   = Enum.TextXAlignment.Left
         btn.ZIndex           = 36
@@ -537,15 +507,15 @@ local FreeModal, openFreeModal, closeFreeModal = createModal(
 createGameList(FreeModal, CONFIG.GAMES_FREE, 64, CONFIG.COLOR_ACCENT, function(g)
     closeFreeModal()
     showToast("🆓 Loading " .. g.name .. "...", CONFIG.COLOR_FREE)
-    task.delay(0.8, function()
+    task.delay(0.5, function()
         local ok, err = pcall(function()
-            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuFree/MenuFreeLoader.lua")
+            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuFree/FreeScript/" .. g.folder .. "/Main.lua")
             local fn, compErr = loadstring(src)
             if not fn then error(tostring(compErr)) end
             fn()
         end)
         if not ok then
-            showToast("❌ Load error: " .. tostring(err):sub(1,40), Color3.fromRGB(200,50,50))
+            showToast("❌ " .. tostring(err):sub(1,50), Color3.fromRGB(200,50,50))
         end
     end)
 end)
@@ -625,15 +595,15 @@ local PremiumModal, openPremiumModal, closePremiumModal = createModal(
 createGameList(PremiumModal, CONFIG.GAMES_PREMIUM, 64, CONFIG.COLOR_PREMIUM, function(g)
     closePremiumModal()
     showToast("👑 Loading " .. g.name .. "...", CONFIG.COLOR_PREMIUM)
-    task.delay(0.8, function()
+    task.delay(0.5, function()
         local ok, err = pcall(function()
-            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuPremium/MenuPremiumLoader.lua")
+            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuPremium/PremiumScript/" .. g.folder .. "/Main.lua")
             local fn, compErr = loadstring(src)
             if not fn then error(tostring(compErr)) end
             fn()
         end)
         if not ok then
-            showToast("❌ Load error: " .. tostring(err):sub(1,40), Color3.fromRGB(200,50,50))
+            showToast("❌ " .. tostring(err):sub(1,50), Color3.fromRGB(200,50,50))
         end
     end)
 end)
