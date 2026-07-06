@@ -141,25 +141,8 @@ Card.Parent                = ScreenGui
 makeCorner(20).Parent = Card
 makeStroke(CONFIG.COLOR_ACCENT, 1.5, 0.35).Parent = Card
 
--- Corner glow lights (decorative)
-local cornerDefs = {
-    { pos = UDim2.new(0, -15, 0, -15), anchor = Vector2.new(0, 0) },
-    { pos = UDim2.new(1, 15,  0, -15), anchor = Vector2.new(1, 0) },
-    { pos = UDim2.new(0, -15, 1, 15),  anchor = Vector2.new(0, 1) },
-    { pos = UDim2.new(1, 15,  1, 15),  anchor = Vector2.new(1, 1) },
-}
-for _, cp in ipairs(cornerDefs) do
-    local light = Instance.new("ImageLabel")
-    light.Size               = UDim2.new(0, 110, 0, 110)
-    light.Position           = cp.pos
-    light.AnchorPoint        = cp.anchor
-    light.BackgroundTransparency = 1
-    light.Image              = "rbxassetid://5028857084"
-    light.ImageColor3        = CONFIG.COLOR_CORNER
-    light.ImageTransparency  = 0.55
-    light.ZIndex             = 3
-    light.Parent             = Card
-end
+
+
 
 -- Header
 local Header = Instance.new("Frame")
@@ -276,7 +259,7 @@ FreeTitleLbl.Position        = UDim2.new(0, 0, 0.5, -22)
 FreeTitleLbl.BackgroundTransparency = 1
 FreeTitleLbl.Text            = "🆓 Free"
 FreeTitleLbl.TextColor3      = Color3.fromRGB(255, 200, 205)
-FreeTitleLbl.TextSize        = 20
+FreeTitleLbl.TextSize        = 24
 FreeTitleLbl.Font            = Enum.Font.GothamBold
 FreeTitleLbl.ZIndex          = 6
 FreeTitleLbl.Parent          = BtnFree
@@ -288,7 +271,7 @@ FreeDescLbl.BackgroundTransparency = 1
 FreeDescLbl.Text             = "Free game access"
 FreeDescLbl.TextColor3       = Color3.fromRGB(255, 180, 185)
 FreeDescLbl.TextTransparency = 0.25
-FreeDescLbl.TextSize         = 13
+FreeDescLbl.TextSize         = 15
 FreeDescLbl.Font             = Enum.Font.Gotham
 FreeDescLbl.ZIndex           = 6
 FreeDescLbl.Parent           = BtnFree
@@ -312,7 +295,7 @@ PremTitleLbl.Position        = UDim2.new(0, 0, 0.5, -22)
 PremTitleLbl.BackgroundTransparency = 1
 PremTitleLbl.Text            = "👑 Premium"
 PremTitleLbl.TextColor3      = CONFIG.COLOR_PREM_TEXT
-PremTitleLbl.TextSize        = 20
+PremTitleLbl.TextSize        = 24
 PremTitleLbl.Font            = Enum.Font.GothamBold
 PremTitleLbl.ZIndex          = 6
 PremTitleLbl.Parent          = BtnPremium
@@ -324,25 +307,25 @@ PremDescLbl.BackgroundTransparency = 1
 PremDescLbl.Text             = "Full access with key"
 PremDescLbl.TextColor3       = Color3.fromRGB(255, 220, 100)
 PremDescLbl.TextTransparency = 0.2
-PremDescLbl.TextSize         = 13
+PremDescLbl.TextSize         = 15
 PremDescLbl.Font             = Enum.Font.Gotham
 PremDescLbl.ZIndex           = 6
 PremDescLbl.Parent           = BtnPremium
 
 -- Close button (main card X)
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size                = UDim2.new(0, 28, 0, 28)
+CloseBtn.Size                = UDim2.new(0, 30, 0, 30)
 CloseBtn.Position            = UDim2.new(1, -14, 0, -14)
 CloseBtn.AnchorPoint         = Vector2.new(0.5, 0.5)
 CloseBtn.BackgroundColor3    = Color3.fromRGB(180, 40, 55)
 CloseBtn.BackgroundTransparency = 0.3
-CloseBtn.Text                = "✕"
+CloseBtn.Text                = "X"
 CloseBtn.TextColor3          = Color3.fromRGB(255, 200, 200)
-CloseBtn.TextSize            = 13
+CloseBtn.TextSize            = 16
 CloseBtn.Font                = Enum.Font.GothamBold
 CloseBtn.ZIndex              = 10
 CloseBtn.Parent              = Card
-makeCorner(14).Parent = CloseBtn
+makeCorner(15).Parent = CloseBtn
 
 CloseBtn.MouseButton1Click:Connect(function()
     tween(Card,    { BackgroundTransparency = 1 }, 0.3)
@@ -451,9 +434,9 @@ local function createModal(titleText, modalHeight, accentColor, titleColor)
     closeM.AnchorPoint       = Vector2.new(0.5, 0.5)
     closeM.BackgroundColor3  = Color3.fromRGB(180, 40, 55)
     closeM.BackgroundTransparency = 0.3
-    closeM.Text              = "✕"
+    closeM.Text              = "X"
     closeM.TextColor3        = Color3.fromRGB(255, 200, 200)
-    closeM.TextSize          = 12
+    closeM.TextSize          = 15
     closeM.Font              = Enum.Font.GothamBold
     closeM.ZIndex            = 38
     closeM.Parent            = modal
