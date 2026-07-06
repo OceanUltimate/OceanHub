@@ -10,8 +10,8 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local REPO_RAW = "https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/"
 local Supabase = loadstring(game:HttpGet(REPO_RAW .. "MainScript/Component/Supabase/Main.lua"))()
 Supabase.Configure(
-    "https://SUPABASE_PROJECT_ID.supabase.co",  -- ganti dengan URL Supabase kamu
-    "SUPABASE_ANON_KEY_KAMU"                     -- ganti dengan anon key kamu
+    "https://diepaphbtpepwzqdaujq.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpZXBhcGhidHBlcHd6cWRhdWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5OTk5MjIsImV4cCI6MjA5ODU3NTkyMn0.RBiaEWZD5D0H50X5YFJd7F-GaYXBG4nPcHqaLr-1KCI"
 )
 
 -- ============================================================
