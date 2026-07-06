@@ -548,6 +548,14 @@ makeCorner(10).Parent = KeyInput
 makeStroke(CONFIG.COLOR_PREMIUM, 1, 0.4).Parent = KeyInput
 makePadding(0, 0, 12, 10).Parent = KeyInput
 
+-- Load saved key
+local SAVE_FILE = "OceanHub_Key.txt"
+pcall(function()
+    if isfile and isfile(SAVE_FILE) then
+        KeyInput.Text = readfile(SAVE_FILE)
+    end
+end)
+
 local KeyError = Instance.new("TextLabel")
 KeyError.Size                = UDim2.new(1, -32, 0, 18)
 KeyError.Position            = UDim2.new(0, 16, 0, 112)
@@ -630,6 +638,7 @@ VerifyBtn.MouseButton1Click:Connect(function()
         VerifyBtn.Active = true
 
         if valid then
+            pcall(function() if writefile then writefile(SAVE_FILE, key) end end)
             closeKeyModal()
             task.delay(0.3, openPremiumModal)
             showToast("✅ " .. (msg or "Key valid! Welcome to Premium!"), CONFIG.COLOR_PREMIUM)
