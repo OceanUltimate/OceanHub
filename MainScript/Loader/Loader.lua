@@ -6,6 +6,14 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
+-- Load Supabase component
+local REPO_RAW = "https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/"
+local Supabase = loadstring(game:HttpGet(REPO_RAW .. "MainScript/Component/Supabase/Main.lua"))()
+Supabase.Configure(
+    "https://SUPABASE_PROJECT_ID.supabase.co",  -- ganti dengan URL Supabase kamu
+    "SUPABASE_ANON_KEY_KAMU"                     -- ganti dengan anon key kamu
+)
+
 -- ============================================================
 -- CONFIG
 -- ============================================================
@@ -13,8 +21,8 @@ local CONFIG = {
     ICON            = "rbxassetid://84718341622420",
     HUB_NAME        = "OceanHub",
     VERSION         = "v1.0",
-    SUPABASE_URL    = "https://SUPABASE_PROJECT_ID.supabase.co",
-    SUPABASE_ANON   = "SUPABASE_ANON_KEY_KAMU",
+    SUPABASE_URL    = Supabase.URL,
+    SUPABASE_ANON   = Supabase.KEY,
 
     -- Ocean theme colors
     COLOR_BG        = Color3.fromRGB(7, 18, 32),
@@ -85,52 +93,9 @@ local function tween(obj, props, duration, style, direction)
     TweenService:Create(obj, info, props):Play()
 end
 
--- ============================================================
--- KEY VERIFICATION (Supabase)
--- BUG FIX: now also checks expires_at so expired keys are rejected
--- even when is_active is still true in the database.
--- ============================================================
+-- KEY VERIFICATION: delegated to Supabase component
 local function verifyKeySupabase(key)
-    local ok, result = pcall(function()
-        local url = CONFIG.SUPABASE_URL
-            .. "/rest/v1/keys?key=eq." .. HttpService:UrlEncode(key)
-            .. "&select=key,is_active,expires_at"
-        local response = HttpService:GetAsync(url, true, {
-            ["apikey"]        = CONFIG.SUPABASE_ANON,
-            ["Authorization"] = "Bearer " .. CONFIG.SUPABASE_ANON,
-        })
-        local data = HttpService:JSONDecode(response)
-        if data and #data > 0 then
-            local row = data[1]
-            if row.is_active ~= true then return false end
-            -- Check expiry if the field exists and is not null
-            if row.expires_at and row.expires_at ~= "" and row.expires_at ~= nil then
-                -- expires_at is an ISO-8601 string e.g. "2025-12-31T00:00:00Z"
-                -- os.time() gives current UTC epoch; parse expires_at manually
-                local yr, mo, dy, hr, mn, sc = row.expires_at:match(
-                    "(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)"
-                )
-                if yr then
-                    -- Simple expiry check using os.time with UTC offset
-                    local expEpoch = os.time({
-                        year  = tonumber(yr),
-                        month = tonumber(mo),
-                        day   = tonumber(dy),
-                        hour  = tonumber(hr),
-                        min   = tonumber(mn),
-                        sec   = tonumber(sc),
-                    })
-                    if os.time() > expEpoch then
-                        return false  -- Key expired
-                    end
-                end
-            end
-            return true
-        end
-        return false
-    end)
-    if ok then return result end
-    return false
+    return Supabase.VerifyKey(key)
 end
 
 -- ============================================================
@@ -589,8 +554,16 @@ local FreeModal, openFreeModal, closeFreeModal = createModal(
 createGameList(FreeModal, CONFIG.GAMES_FREE, 64, CONFIG.COLOR_ACCENT, function(g)
     closeFreeModal()
     showToast("🆓 Loading " .. g.name .. "...", CONFIG.COLOR_FREE)
-    task.delay(1.5, function()
-        print("[OceanHub] FREE: Loading " .. g.name)
+    task.delay(0.8, function()
+        local ok, err = pcall(function()
+            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuFree/MenuFreeLoader.lua")
+            local fn, compErr = loadstring(src)
+            if not fn then error(tostring(compErr)) end
+            fn()
+        end)
+        if not ok then
+            showToast("❌ Load error: " .. tostring(err):sub(1,40), Color3.fromRGB(200,50,50))
+        end
     end)
 end)
 
@@ -669,8 +642,16 @@ local PremiumModal, openPremiumModal, closePremiumModal = createModal(
 createGameList(PremiumModal, CONFIG.GAMES_PREMIUM, 64, CONFIG.COLOR_PREMIUM, function(g)
     closePremiumModal()
     showToast("👑 Loading " .. g.name .. "...", CONFIG.COLOR_PREMIUM)
-    task.delay(1.5, function()
-        print("[OceanHub] PREMIUM: Loading " .. g.name)
+    task.delay(0.8, function()
+        local ok, err = pcall(function()
+            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuPremium/MenuPremiumLoader.lua")
+            local fn, compErr = loadstring(src)
+            if not fn then error(tostring(compErr)) end
+            fn()
+        end)
+        if not ok then
+            showToast("❌ Load error: " .. tostring(err):sub(1,40), Color3.fromRGB(200,50,50))
+        end
     end)
 end)
 
