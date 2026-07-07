@@ -285,6 +285,5 @@ end
 
 destroySplash()
 
-print("[OceanHub Loader] OceanUI v"..VERSION.." loaded successfully!")
 
 return library

@@ -3197,15 +3197,5 @@ end
 -- Accessible as _G.OceanUI from any script in the same executor
 _G.OceanUI = OceanUI
 
-print(string.rep("=",52))
-print("  OceanHub UI Library v1.0.0 — Loaded!")
-print("  Components: Window, Tab, Frame, Button, Execute,")
-print("  Toggle, Slider, Dropdown, Input, TextArea,")
-print("  Keybind, ColorPicker, ProgressBar, Separator,")
-print("  Label, Badge, Avatar, SearchBox, StatCard,")
-print("  Table, RadioGroup, CheckboxGroup, Accordion,")
-print("  LoadingSpinner, Dialog, Notification, Tooltip,")
-print("  ContextMenu + Animation & Theme Presets")
-print(string.rep("=",52))
 
 return OceanUI

@@ -4,15 +4,12 @@ local GAMES = {
     {name="⚙️ Default",folder="Default"},
 }
 local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-for _,v in ipairs(pg:GetChildren()) do if v.Name=="OceanHubLoader" then v:Destroy() end end
-
 local sg = Instance.new("ScreenGui"); sg.Name="PremiumMenuGui"; sg.ResetOnSpawn=false; sg.IgnoreGuiInset=true; sg.Parent=pg
 
 local H = 60+#GAMES*52
 local card=Instance.new("Frame"); card.Size=UDim2.new(0,300,0,H); card.Position=UDim2.fromScale(0.5,0.5); card.AnchorPoint=Vector2.new(0.5,0.5); card.BackgroundColor3=Color3.fromRGB(8,14,28); card.BorderSizePixel=0; card.Parent=sg
 Instance.new("UICorner",card).CornerRadius=UDim.new(0,16)
 local st=Instance.new("UIStroke",card); st.Color=Color3.fromRGB(200,160,0); st.Thickness=1.5
-
 local ttl=Instance.new("TextLabel"); ttl.Size=UDim2.new(1,0,0,50); ttl.BackgroundTransparency=1; ttl.Text="👑 Select Game"; ttl.TextColor3=Color3.fromRGB(255,215,0); ttl.Font=Enum.Font.GothamBold; ttl.TextSize=18; ttl.Parent=card
 
 for i,g in ipairs(GAMES) do
@@ -20,6 +17,7 @@ for i,g in ipairs(GAMES) do
     Instance.new("UICorner",btn).CornerRadius=UDim.new(0,10)
     btn.MouseButton1Click:Connect(function()
         sg:Destroy()
+        for _,v in ipairs(pg:GetChildren()) do if v.Name=="OceanHubLoader" then v:Destroy() end end
         local ok,err=pcall(function()
             local src=game:HttpGet(R.."MainScript/Script/MenuPremium/PremiumScript/"..g.folder.."/Main.lua")
             if not src or src=="" then error("Empty") end
