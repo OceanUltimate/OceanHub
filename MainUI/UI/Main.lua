@@ -246,6 +246,7 @@ function U.shadow(parent, zindex, size, offset)
     s.ImageColor3            = K.SHADOW
     s.ImageTransparency      = 0.65
     s.ZIndex                 = (zindex or K.Z_BASE) - 1
+    s.Active                 = false  -- jangan intercept input
     s.Parent                 = parent
     return s
 end
@@ -270,6 +271,7 @@ function U.glow(parent, color, zindex, size)
         l.ImageColor3        = color or Theme.CORNER
         l.ImageTransparency  = 0.62
         l.ZIndex             = (zindex or K.Z_BASE) - 1
+        l.Active             = false  -- jangan intercept input
         l.Parent             = parent
         table.insert(lights, l)
     end
@@ -2870,12 +2872,13 @@ local function createWindow(config)
     gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     gui.Parent         = pg
 
-    -- Dim overlay
+    -- Dim overlay (Active=false agar tidak memblokir klik ke window)
     local overlay = U.new("Frame", {
         Size                   = UDim2.fromScale(1, 1),
         BackgroundColor3       = Color3.fromRGB(0, 0, 0),
         BackgroundTransparency = 0.55,
         ZIndex                 = K.Z_BASE - 1,
+        Active                 = false,
     }, gui)
 
     -- Main window frame
