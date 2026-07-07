@@ -37,15 +37,8 @@ local CONFIG = {
     COLOR_MUTED     = Color3.fromRGB(100, 150, 200),
     COLOR_CORNER    = Color3.fromRGB(0, 160, 230),
 
-    GAMES_FREE = {
-        { name = "🍋 Sell Lemons", folder = "Sell Lemons" },
-        { name = "⚙️ Default",     folder = "Default"     },
-    },
-
-    GAMES_PREMIUM = {
-        { name = "🍋 Sell Lemons", folder = "Sell Lemons" },
-        { name = "⚙️ Default",     folder = "Default"     },
-    },
+    GAMES_FREE = {},
+    GAMES_PREMIUM = {},
 }
 
 -- ============================================================
@@ -497,26 +490,16 @@ end
 -- ============================================================
 -- FOLDER 2 – FREE GAME MODAL (blue/red)
 -- ============================================================
-local FreeModal, openFreeModal, closeFreeModal = createModal(
-    "🆓 Select Game  —  Free",
-    340,
-    CONFIG.COLOR_ACCENT,
-    CONFIG.COLOR_TEXT
-)
-
-createGameList(FreeModal, CONFIG.GAMES_FREE, 64, CONFIG.COLOR_ACCENT, function(g)
-    closeFreeModal()
-    showToast("🆓 Loading " .. g.name .. "...", CONFIG.COLOR_FREE)
+BtnFree.MouseButton1Click:Connect(function()
+    showToast("🆓 Loading Free Menu...", CONFIG.COLOR_FREE)
     task.delay(0.5, function()
         local ok, err = pcall(function()
-            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuFree/FreeScript/" .. g.folder .. "/Main.lua")
+            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuFree/MenuFreeLoader.lua")
             local fn, compErr = loadstring(src)
             if not fn then error(tostring(compErr)) end
             fn()
         end)
-        if not ok then
-            showToast("❌ " .. tostring(err):sub(1,50), Color3.fromRGB(200,50,50))
-        end
+        if not ok then showToast("❌ " .. tostring(err):sub(1,50), Color3.fromRGB(200,50,50)) end
     end)
 end)
 
@@ -593,28 +576,18 @@ end)
 -- ============================================================
 -- FOLDER 3 – PREMIUM GAME MODAL (yellow/gold)
 -- ============================================================
-local PremiumModal, openPremiumModal, closePremiumModal = createModal(
-    "👑 Select Game  —  Premium",
-    420,
-    CONFIG.COLOR_PREMIUM,
-    CONFIG.COLOR_PREM_TEXT
-)
-
-createGameList(PremiumModal, CONFIG.GAMES_PREMIUM, 64, CONFIG.COLOR_PREMIUM, function(g)
-    closePremiumModal()
-    showToast("👑 Loading " .. g.name .. "...", CONFIG.COLOR_PREMIUM)
+local function openPremiumMenu()
+    showToast("👑 Loading Premium Menu...", CONFIG.COLOR_PREMIUM)
     task.delay(0.5, function()
         local ok, err = pcall(function()
-            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuPremium/PremiumScript/" .. g.folder .. "/Main.lua")
+            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuPremium/MenuPremiumLoader.lua")
             local fn, compErr = loadstring(src)
             if not fn then error(tostring(compErr)) end
             fn()
         end)
-        if not ok then
-            showToast("❌ " .. tostring(err):sub(1,50), Color3.fromRGB(200,50,50))
-        end
+        if not ok then showToast("❌ " .. tostring(err):sub(1,50), Color3.fromRGB(200,50,50)) end
     end)
-end)
+end
 
 -- ============================================================
 -- KEY VERIFICATION LOGIC
@@ -640,7 +613,7 @@ VerifyBtn.MouseButton1Click:Connect(function()
         if valid then
             pcall(function() if writefile then writefile(SAVE_FILE, key) end end)
             closeKeyModal()
-            task.delay(0.3, openPremiumModal)
+            task.delay(0.3, openPremiumMenu)
             showToast("✅ " .. (msg or "Key valid! Welcome to Premium!"), CONFIG.COLOR_PREMIUM)
         else
             KeyError.Text    = msg or "Invalid or expired key!"
@@ -658,7 +631,6 @@ end)
 BtnFree.MouseLeave:Connect(function()
     tween(BtnFree, { BackgroundTransparency = 0.4 }, 0.12)
 end)
-BtnFree.MouseButton1Click:Connect(openFreeModal)
 
 BtnPremium.MouseEnter:Connect(function()
     tween(BtnPremium, { BackgroundTransparency = 0.18 }, 0.12)
