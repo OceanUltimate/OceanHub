@@ -45,8 +45,7 @@ local Players      = game:GetService("Players")
 -- CACHE — avoid reloading if already in _G
 -- ============================================================
 if _G[CACHE_KEY] then
-    print("[OceanHub Loader] Using cached OceanUI v"..VERSION)
-    return _G[CACHE_KEY]
+    _G[CACHE_KEY] = nil
 end
 
 -- ============================================================
