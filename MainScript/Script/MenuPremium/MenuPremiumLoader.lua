@@ -3,15 +3,12 @@ local GAMES = {
     {name="🍋 Sell Lemons",folder="Sell%20Lemons"},
     {name="⚙️ Default",folder="Default"},
 }
-local lp = game:GetService("Players").LocalPlayer
-local pg = lp:WaitForChild("PlayerGui")
+local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 for _,v in ipairs(pg:GetChildren()) do if v.Name=="OceanHubLoader" then v:Destroy() end end
 
 local sg = Instance.new("ScreenGui"); sg.Name="PremiumMenuGui"; sg.ResetOnSpawn=false; sg.IgnoreGuiInset=true; sg.Parent=pg
 
-local overlay=Instance.new("Frame"); overlay.Size=UDim2.fromScale(1,1); overlay.BackgroundColor3=Color3.fromRGB(0,0,0); overlay.BackgroundTransparency=0.5; overlay.BorderSizePixel=0; overlay.Parent=sg
-
-local H=60+#GAMES*52
+local H = 60+#GAMES*52
 local card=Instance.new("Frame"); card.Size=UDim2.new(0,300,0,H); card.Position=UDim2.fromScale(0.5,0.5); card.AnchorPoint=Vector2.new(0.5,0.5); card.BackgroundColor3=Color3.fromRGB(8,14,28); card.BorderSizePixel=0; card.Parent=sg
 Instance.new("UICorner",card).CornerRadius=UDim.new(0,16)
 local st=Instance.new("UIStroke",card); st.Color=Color3.fromRGB(200,160,0); st.Thickness=1.5
@@ -19,7 +16,7 @@ local st=Instance.new("UIStroke",card); st.Color=Color3.fromRGB(200,160,0); st.T
 local ttl=Instance.new("TextLabel"); ttl.Size=UDim2.new(1,0,0,50); ttl.BackgroundTransparency=1; ttl.Text="👑 Select Game"; ttl.TextColor3=Color3.fromRGB(255,215,0); ttl.Font=Enum.Font.GothamBold; ttl.TextSize=18; ttl.Parent=card
 
 for i,g in ipairs(GAMES) do
-    local btn=Instance.new("TextButton"); btn.Size=UDim2.new(1,-24,0,40); btn.Position=UDim2.new(0,12,0,50+(i-1)*48); btn.BackgroundColor3=Color3.fromRGB(30,20,5); btn.Text=g.name; btn.TextColor3=Color3.fromRGB(255,215,0); btn.Font=Enum.Font.GothamBold; btn.TextSize=15; btn.Parent=card
+    local btn=Instance.new("TextButton"); btn.Size=UDim2.new(1,-24,0,40); btn.Position=UDim2.new(0,12,0,50+(i-1)*48); btn.BackgroundColor3=Color3.fromRGB(30,20,5); btn.Text=g.name; btn.TextColor3=Color3.fromRGB(255,215,0); btn.Font=Enum.Font.GothamBold; btn.TextSize=15; btn.BorderSizePixel=0; btn.Parent=card
     Instance.new("UICorner",btn).CornerRadius=UDim.new(0,10)
     btn.MouseButton1Click:Connect(function()
         sg:Destroy()

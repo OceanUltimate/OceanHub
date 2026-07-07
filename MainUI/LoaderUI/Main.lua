@@ -42,11 +42,7 @@ local TweenService = game:GetService("TweenService")
 local Players      = game:GetService("Players")
 
 -- ============================================================
--- CACHE — avoid reloading if already in _G
--- ============================================================
-if _G[CACHE_KEY] then
-    _G[CACHE_KEY] = nil
-end
+
 
 -- ============================================================
 -- LOADING SPLASH (shown while fetching)
@@ -285,7 +281,7 @@ if not success then
 end
 
 -- Cache in _G
-_G[CACHE_KEY] = library
+
 
 destroySplash()
 
