@@ -243,7 +243,7 @@ function U.shadow(parent, zindex, size, offset)
     s.Position               = offset or UDim2.new(0,-14,0,-14)
     s.BackgroundTransparency = 1
     s.Image                  = K.GLOW_IMAGE
-    s.ImageColor3            = K.SHADOW
+    s.ImageColor3            = Theme.SHADOW
     s.ImageTransparency      = 0.65
     s.ZIndex                 = (zindex or K.Z_BASE) - 1
     s.Active                 = false  -- jangan intercept input
