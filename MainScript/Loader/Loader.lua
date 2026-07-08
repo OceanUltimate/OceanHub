@@ -8,7 +8,34 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 -- Load Supabase component
 local REPO_RAW = "https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/"
-local Supabase = loadstring(game:HttpGet(REPO_RAW .. "MainScript/Component/Supabase/Main.lua"))()
+
+-- Validate HTTP response before loadstring — prevents "Expected identifier, got '429'" crash
+local function safeSrc(url, retries)
+    retries = retries or 4
+    for i = 1, retries do
+        local ok, res = pcall(function() return game:HttpGet(url) end)
+        if not ok then
+            if i == retries then error("HttpGet failed: "..tostring(res)) end
+            task.wait(2^i)
+        elseif not res or res == "" then
+            if i == retries then error("Empty response from: "..url:match("[^/]+$")) end
+            task.wait(2^i)
+        elseif res:find("^%d%d%d ") then
+            local code = res:match("^(%d+)")
+            if code ~= "429" or i == retries then
+                error("HTTP "..code.." from: "..url:match("[^/]+$"))
+            end
+            task.wait(math.min(2^i * 2, 30))
+        elseif res:find("^<!") then
+            if i == retries then error("HTML error (404?): "..url:match("[^/]+$")) end
+            task.wait(2^i)
+        else
+            return res
+        end
+    end
+end
+
+local Supabase = loadstring(safeSrc(REPO_RAW .. "MainScript/Component/Supabase/Main.lua"))()
 Supabase.Configure(
     "https://diepaphbtpepwzqdaujq.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpZXBhcGhidHBlcHd6cWRhdWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5OTk5MjIsImV4cCI6MjA5ODU3NTkyMn0.RBiaEWZD5D0H50X5YFJd7F-GaYXBG4nPcHqaLr-1KCI"
@@ -494,7 +521,7 @@ BtnFree.MouseButton1Click:Connect(function()
     showToast("🆓 Loading Free Menu...", CONFIG.COLOR_FREE)
     task.delay(0.5, function()
         local ok, err = pcall(function()
-            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuFree/MenuFreeLoader.lua")
+            local src = safeSrc(REPO_RAW .. "MainScript/Script/MenuFree/MenuFreeLoader.lua")
             local fn, compErr = loadstring(src)
             if not fn then error(tostring(compErr)) end
             fn()
@@ -580,7 +607,7 @@ local function openPremiumMenu()
     showToast("👑 Loading Premium Menu...", CONFIG.COLOR_PREMIUM)
     task.delay(0.5, function()
         local ok, err = pcall(function()
-            local src = game:HttpGet(REPO_RAW .. "MainScript/Script/MenuPremium/MenuPremiumLoader.lua")
+            local src = safeSrc(REPO_RAW .. "MainScript/Script/MenuPremium/MenuPremiumLoader.lua")
             local fn, compErr = loadstring(src)
             if not fn then error(tostring(compErr)) end
             fn()
