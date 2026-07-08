@@ -1,7 +1,15 @@
 local R = "https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/"
-local OceanUI = loadstring(game:HttpGet(R.."MainUI/UI/Main.lua"))()
-local Fn = loadstring(game:HttpGet(R.."MainScript/Script/MenuPremium/PremiumScript/Default/Funtion/Funtion.lua"))()
-local W = OceanUI:CreateWindow({Title="OceanHub",Subtitle="Premium — Default",Icon="rbxassetid://84718341622420"})
+local function safeLoad(url)
+    local src = game:HttpGet(url)
+    assert(src and src ~= "" and not src:find("^<!") and not src:find("^%d%d%d "),
+        "Bad response from: "..url:match("[^/]+$").." (rate limit or 404?)")
+    local fn, err = loadstring(src)
+    assert(fn, "Compile error: "..tostring(err))
+    return fn()
+end
+local OceanUI = safeLoad(R.."MainUI/UI/Main.lua")
+local Fn      = safeLoad(R.."MainScript/Script/MenuPremium/PremiumScript/Default/Funtion/Funtion.lua")
+local W   = OceanUI:CreateWindow({Title="OceanHub",Subtitle="Premium — Default",Icon="rbxassetid://84718341622420"})
 local mov = W:CreateTab({Name="⚡ Movement",Icon="⚡"})
 mov:CreateSlider({Name="Walk Speed",Min=16,Max=500,Default=16,Callback=function(v) Fn.SetWalkSpeed(v) end})
 mov:CreateSlider({Name="Jump Power",Min=50,Max=1000,Default=50,Callback=function(v) Fn.SetJumpPower(v) end})

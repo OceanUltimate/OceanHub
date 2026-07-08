@@ -1,6 +1,14 @@
 local R = "https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/"
-local OceanUI = loadstring(game:HttpGet(R.."MainUI/UI/Main.lua"))()
-local Fn = loadstring(game:HttpGet(R.."MainScript/Script/MenuPremium/PremiumScript/Sell%20Lemons/Funtion/Function.lua"))()
+local function safeLoad(url)
+    local src = game:HttpGet(url)
+    assert(src and src ~= "" and not src:find("^<!") and not src:find("^%d%d%d "),
+        "Bad response from: "..url:match("[^/]+$").." (rate limit or 404?)")
+    local fn, err = loadstring(src)
+    assert(fn, "Compile error: "..tostring(err))
+    return fn()
+end
+local OceanUI = safeLoad(R.."MainUI/UI/Main.lua")
+local Fn      = safeLoad(R.."MainScript/Script/MenuPremium/PremiumScript/Sell%20Lemons/Funtion/Function.lua")
 local W = OceanUI:CreateWindow({Title="OceanHub",Subtitle="Premium — Sell Lemons",Icon="rbxassetid://84718341622420"})
 local t = W:CreateTab({Name="🍋 Lemons",Icon="🍋"})
 t:CreateToggle({Name="Auto Sell",Default=false,Callback=function(v) if v then Fn.StartAutoSell(0.3) else Fn.StopAutoSell() end end})
