@@ -2882,14 +2882,18 @@ local function createWindow(config)
     }, gui)
 
     -- Main window frame
+    -- BUG FIX: BackgroundTransparency starts at 1 (invisible) so entry tween
+    -- has no 1-frame flash. Active=true ensures mouse events register on window
+    -- even with ZIndexBehavior.Sibling and the overlay frame behind it.
     local win = U.new("Frame", {
         Name                   = "Window",
         Size                   = UDim2.new(0, minW, 0, minH),
         Position               = UDim2.fromScale(0.5, 0.5),
         AnchorPoint            = Vector2.new(0.5, 0.5),
         BackgroundColor3       = Theme.BG,
-        BackgroundTransparency = 0.04,
+        BackgroundTransparency = 1,
         ZIndex                 = K.Z_BASE,
+        Active                 = true,
     }, gui)
     U.corner(14, win)
     U.stroke(Theme.ACCENT, 1.5, 0.35, win)
@@ -3025,8 +3029,7 @@ local function createWindow(config)
         end
     end)
 
-    -- Entry animation
-    win.BackgroundTransparency = 1
+    -- Entry animation (win already starts at transparency=1, overlay starts at 0.55 from props)
     overlay.BackgroundTransparency = 1
     U.tween(overlay, { BackgroundTransparency = 0.55 }, 0.3)
     task.delay(0.05, function()
