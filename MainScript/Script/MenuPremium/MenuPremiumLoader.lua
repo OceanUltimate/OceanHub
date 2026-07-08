@@ -21,16 +21,30 @@ ttl.Size=UDim2.new(1,0,0,50); ttl.BackgroundTransparency=1
 ttl.Text="👑 Select Game"; ttl.TextColor3=Color3.fromRGB(255,215,0)
 ttl.Font=Enum.Font.GothamBold; ttl.TextSize=18; ttl.Parent=card
 
-local function safeSrc(url)
-    local ok, src = pcall(function() return game:HttpGet(url) end)
-    if not ok then error("HttpGet error: "..tostring(src)) end
-    if not src or src == "" then error("Empty response") end
-    if src:find("^%d%d%d ") then
-        local code = src:match("^(%d+)")
-        error("HTTP "..code.." (rate limit or not found)")
+local function safeSrc(url, retries)
+    retries = retries or 5
+    for i = 1, retries do
+        local ok, res = pcall(function() return game:HttpGet(url) end)
+        if not ok then
+            if i == retries then error("HttpGet failed: "..tostring(res)) end
+            task.wait(2^i)
+        elseif not res or res == "" then
+            if i == retries then error("Empty response: "..url:match("[^/]+$")) end
+            task.wait(2^i)
+        elseif res:find("^%d%d%d ") then
+            local code = res:match("^(%d+)")
+            if code == "429" and i < retries then
+                task.wait(math.min(2^i * 3, 60))
+            else
+                error("HTTP "..code.." from: "..url:match("[^/]+$"))
+            end
+        elseif res:find("^<!") then
+            if i == retries then error("HTML error page (404?): "..url:match("[^/]+$")) end
+            task.wait(2^i)
+        else
+            return res
+        end
     end
-    if src:find("^<!") then error("HTML response (404?)") end
-    return src
 end
 
 for i, g in ipairs(GAMES) do
@@ -43,12 +57,12 @@ for i, g in ipairs(GAMES) do
 
     btn.MouseButton1Click:Connect(function()
         sg:Destroy()
-        for _,v in ipairs(pg:GetChildren()) do
+        for _, v in ipairs(pg:GetChildren()) do
             if v.Name=="OceanHubLoader" then v:Destroy() end
         end
-        local ok, err=pcall(function()
-            local src=safeSrc(R.."MainScript/Script/MenuPremium/PremiumScript/"..g.folder.."/Main.lua")
-            local fn,ce=loadstring(src)
+        local ok, err = pcall(function()
+            local src = safeSrc(R.."MainScript/Script/MenuPremium/PremiumScript/"..g.folder.."/Main.lua")
+            local fn, ce = loadstring(src)
             if not fn then error(tostring(ce)) end
             fn()
         end)
