@@ -1,0 +1,1059 @@
+--[[
+    OceanHub UI Library - Module: Notifications / Notifications_Module_1.lua
+    Theme: Midnight Ocean (Matching LoaderMenu.lua with glowing corner lights and icons)
+]]
+
+local Module = {}
+Module.Name = "Notifications_Module_1"
+Module.Folder = "Notifications"
+
+Module.Theme = {
+    BgColor = Color3.fromRGB(6, 18, 48),
+    MainCardBg = Color3.fromRGB(4, 14, 38),
+    OuterBorderColor = Color3.fromRGB(38, 140, 215),
+    HeaderDividerColor = Color3.fromRGB(25, 60, 110),
+    TitleColor = Color3.fromRGB(255, 255, 255),
+    VersionColor = Color3.fromRGB(125, 211, 252),
+    TabInactiveBg = Color3.fromRGB(8, 28, 65),
+    TabInactiveBorder = Color3.fromRGB(25, 75, 130),
+    TabInactiveText = Color3.fromRGB(150, 200, 255),
+    ActiveBg = Color3.fromRGB(12, 80, 150),
+    ActiveBorder = Color3.fromRGB(56, 189, 248),
+    ActiveText = Color3.fromRGB(255, 255, 255),
+    ComponentBg = Color3.fromRGB(10, 35, 75),
+    ComponentBorder = Color3.fromRGB(30, 85, 145),
+    GlowCyan = Color3.fromRGB(56, 189, 248),
+    GlowPurple = Color3.fromRGB(129, 140, 248),
+    GlowGreen = Color3.fromRGB(52, 211, 153),
+    GlowYellow = Color3.fromRGB(251, 191, 36)
+}
+
+function Module.AddCornerGlow(instance, color, size, zIndex, transparency)
+    local Glow = Instance.new("ImageLabel")
+    Glow.Name = "CornerGlow"
+    Glow.Size = size or UDim2.new(0, 240, 0, 240)
+    Glow.BackgroundTransparency = 1
+    Glow.Image = "rbxassetid://5028857484"
+    Glow.ImageColor3 = color or Module.Theme.GlowCyan
+    Glow.ImageTransparency = transparency or 0.02
+    Glow.ZIndex = zIndex or 1
+    Glow.Parent = instance
+    return Glow
+end
+
+function Module.ExecuteFeature_1_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_1_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 1") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_2_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_2_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 2") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_3_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_3_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 3") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_4_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_4_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 4") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_5_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_5_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 5") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_6_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_6_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 6") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_7_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_7_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 7") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_8_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_8_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 8") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_9_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_9_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 9") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_10_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_10_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 10") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_11_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_11_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 11") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_12_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_12_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 12") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_13_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_13_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 13") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_14_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_14_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 14") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_15_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_15_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 15") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_16_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_16_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 16") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_17_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_17_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 17") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_18_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_18_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 18") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_19_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_19_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 19") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_20_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_20_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 20") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_21_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_21_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 21") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_22_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_22_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 22") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_23_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_23_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 23") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_24_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_24_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 24") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_25_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_25_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 25") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_26_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_26_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 26") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_27_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_27_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 27") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_28_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_28_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 28") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_29_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_29_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 29") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_30_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_30_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 30") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_31_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_31_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 31") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_32_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_32_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 32") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_33_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_33_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 33") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_34_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_34_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 34") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+function Module.ExecuteFeature_35_1(parent, options)
+    options = options or {}
+    local frame = Instance.new("Frame")
+    frame.Name = "Elem_35_1"
+    frame.Size = UDim2.new(1, -10, 0, 38)
+    frame.BackgroundColor3 = Module.Theme.ComponentBg
+    frame.BorderSizePixel = 0
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Module.Theme.ComponentBorder
+    local icon = Instance.new("ImageLabel", frame)
+    icon.Size = UDim2.new(0, 20, 0, 20)
+    icon.Position = UDim2.new(0, 10, 0.5, -10)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://84718341622420"
+    icon.ImageColor3 = Module.Theme.VersionColor
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 36, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = (options.Name or "Feature 35") .. " [Notifications Module 1]"
+    label.TextColor3 = Module.Theme.TitleColor
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    return frame
+end
+
+return Module
