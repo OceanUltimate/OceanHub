@@ -45,23 +45,23 @@ local CONFIG = {
     InfoActiveText = Color3.fromRGB(185, 195, 215),
 }
 
--- Point Arsenal & Rivals to our new script folders!
+-- Point Arsenal & Rivals to our OceanHub script folders!
 local SCRIPTS = {
     free = {
-        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/OCEANHUB/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
-        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/OCEANHUB/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
+        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
+        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
         ["Blox Fruits"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/bloxfruits-free/main/loader.lua"))()',
         ["Pet Simulator X"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/petsimx-free/main/loader.lua"))()',
     },
     freemium = {
-        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/OCEANHUB/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
-        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/OCEANHUB/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
+        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
+        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
         ["Blox Fruits"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/bloxfruits-freemium/main/loader.lua"))()',
         ["Da Hood"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/dahood-freemium/main/loader.lua"))()',
     },
     premium = {
-        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/OCEANHUB/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
-        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/OCEANHUB/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
+        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
+        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
         ["Blox Fruits"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/bloxfruits-premium/main/loader.lua"))()',
         ["Doors"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/doors-premium/main/loader.lua"))()',
     }
