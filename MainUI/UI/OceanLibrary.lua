@@ -9,10 +9,19 @@ OceanLibrary.__index = OceanLibrary
 
 local BaseUrl = "https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/"
 
-local Theme = loadstring(game:HttpGet(BaseUrl .. "Components/Theme.lua"))() or {}
-local Notification = loadstring(game:HttpGet(BaseUrl .. "Notifications/Notification.lua"))() or {}
-local Components = loadstring(game:HttpGet(BaseUrl .. "Components/Components.lua"))() or {}
-local ExtraComponents = loadstring(game:HttpGet(BaseUrl .. "Components/ExtraComponents.lua"))() or {}
+local function fetchModule(url)
+    local success, code = pcall(function() return game:HttpGet(url) end)
+    if success and code then
+        local fn = loadstring(code)
+        if fn then return fn() end
+    end
+    return {}
+end
+
+local Theme = fetchModule(BaseUrl .. "Components/Theme.lua")
+local Notification = fetchModule(BaseUrl .. "Notifications/Notification.lua")
+local Components = fetchModule(BaseUrl .. "Components/Components.lua")
+local ExtraComponents = fetchModule(BaseUrl .. "Components/ExtraComponents.lua")
 
 function OceanLibrary:CreateWindow(options)
     options = options or {}

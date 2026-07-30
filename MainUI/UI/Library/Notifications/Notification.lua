@@ -2,7 +2,15 @@
     OceanHub Notifications System with Corner Glow Effects
 ]]
 
-local Theme = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Components/Theme.lua"))() or {}
+local function fetchTheme()
+    local success, code = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Components/Theme.lua") end)
+    if success and code then
+        local fn = loadstring(code)
+        if fn then return fn() end
+    end
+    return {}
+end
+local Theme = fetchTheme()
 
 local NotificationManager = {}
 
