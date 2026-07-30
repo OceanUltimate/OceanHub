@@ -1,146 +1,194 @@
 --[[
-    OceanHub UI Library - Components Container
+    OceanHub UI Library - Advanced Components
+    Full UI Component implementations matching LoaderMenu.lua design & corner glow themes.
 ]]
+
+local Theme = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Components/Theme.lua"))() or {}
+
 local Components = {}
 
--- Create Button Component
+local function createBaseFrame(parent, height, name)
+    local Frame = Instance.new("Frame")
+    Frame.Name = name or "ComponentFrame"
+    Frame.Size = UDim2.new(1, -10, 0, height or 40)
+    Frame.BackgroundColor3 = Theme.Colors.ComponentBg
+    Frame.BorderSizePixel = 0
+    Frame.Parent = parent
+
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
+    local Stroke = Instance.new("UIStroke", Frame)
+    Stroke.Color = Theme.Colors.ComponentBorder
+    Stroke.Thickness = 1
+
+    return Frame, Stroke
+end
+
 function Components.CreateButton(parent, options)
     options = options or {}
     local name = options.Name or "Button"
+    local iconId = options.Icon or Theme.Icons.Button
     local callback = options.Callback or function() end
 
-    local Button = Instance.new("TextButton")
-    Button.Name = name
-    Button.Size = UDim2.new(1, -20, 0, 35)
-    Button.BackgroundColor3 = Color3.fromRGB(35, 45, 60)
-    Button.BorderSizePixel = 0
-    Button.Text = name
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.TextSize = 14
-    Button.Font = Enum.Font.SourceSansBold
-    Button.Parent = parent
+    local Frame, Stroke = createBaseFrame(parent, 38, name .. "_ButtonFrame")
 
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 6)
-    Corner.Parent = Button
+    local Icon = Instance.new("ImageLabel", Frame)
+    Icon.Size = UDim2.new(0, 20, 0, 20)
+    Icon.Position = UDim2.new(0, 10, 0.5, -10)
+    Icon.BackgroundTransparency = 1
+    Icon.Image = iconId
+    Icon.ImageColor3 = Theme.Colors.SubTitleColor
+    Icon.ZIndex = 4
 
+    local Label = Instance.new("TextLabel", Frame)
+    Label.Size = UDim2.new(1, -40, 1, 0)
+    Label.Position = UDim2.new(0, 36, 0, 0)
+    Label.BackgroundTransparency = 1
+    Label.Text = name
+    Label.TextColor3 = Theme.Colors.TextColor
+    Label.TextSize = 13
+    Label.Font = Enum.Font.GothamMedium
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.ZIndex = 4
+
+    local Button = Instance.new("TextButton", Frame)
+    Button.Size = UDim2.new(1, 0, 1, 0)
+    Button.BackgroundTransparency = 1
+    Button.Text = ""
+    Button.ZIndex = 5
+
+    Button.MouseEnter:Connect(function()
+        Frame.BackgroundColor3 = Theme.Colors.ActiveBg
+        Stroke.Color = Theme.Colors.ActiveBorder
+    end)
+    Button.MouseLeave:Connect(function()
+        Frame.BackgroundColor3 = Theme.Colors.ComponentBg
+        Stroke.Color = Theme.Colors.ComponentBorder
+    end)
     Button.MouseButton1Click:Connect(function()
         pcall(callback)
     end)
 
-    return Button
+    return Frame
 end
 
--- Create Toggle Component
 function Components.CreateToggle(parent, options)
     options = options or {}
     local name = options.Name or "Toggle"
     local default = options.Default or false
+    local iconId = options.Icon or Theme.Icons.Toggle
     local callback = options.Callback or function() end
 
     local state = default
+    local Frame, Stroke = createBaseFrame(parent, 38, name .. "_ToggleFrame")
 
-    local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Name = name .. "_Toggle"
-    ToggleFrame.Size = UDim2.new(1, -20, 0, 35)
-    ToggleFrame.BackgroundColor3 = Color3.fromRGB(35, 45, 60)
-    ToggleFrame.BorderSizePixel = 0
-    ToggleFrame.Parent = parent
+    local Icon = Instance.new("ImageLabel", Frame)
+    Icon.Size = UDim2.new(0, 20, 0, 20)
+    Icon.Position = UDim2.new(0, 10, 0.5, -10)
+    Icon.BackgroundTransparency = 1
+    Icon.Image = iconId
+    Icon.ImageColor3 = Theme.Colors.SubTitleColor
+    Icon.ZIndex = 4
 
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 6)
-    Corner.Parent = ToggleFrame
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -60, 1, 0)
-    Label.Position = UDim2.new(0, 10, 0, 0)
+    local Label = Instance.new("TextLabel", Frame)
+    Label.Size = UDim2.new(1, -90, 1, 0)
+    Label.Position = UDim2.new(0, 36, 0, 0)
     Label.BackgroundTransparency = 1
     Label.Text = name
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.TextSize = 14
+    Label.TextColor3 = Theme.Colors.TextColor
+    Label.TextSize = 13
+    Label.Font = Enum.Font.GothamMedium
     Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Font = Enum.Font.SourceSans
-    Label.Parent = ToggleFrame
+    Label.ZIndex = 4
 
-    local Indicator = Instance.new("Frame")
-    Indicator.Size = UDim2.new(0, 20, 0, 20)
-    Indicator.Position = UDim2.new(1, -30, 0.5, -10)
-    Indicator.BackgroundColor3 = state and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(70, 70, 70)
-    Indicator.BorderSizePixel = 0
-    Indicator.Parent = ToggleFrame
+    local ToggleOuter = Instance.new("Frame", Frame)
+    ToggleOuter.Size = UDim2.new(0, 38, 0, 20)
+    ToggleOuter.Position = UDim2.new(1, -48, 0.5, -10)
+    ToggleOuter.BackgroundColor3 = state and Theme.Colors.ActiveBg or Color3.fromRGB(15, 30, 60)
+    ToggleOuter.ZIndex = 4
+    Instance.new("UICorner", ToggleOuter).CornerRadius = UDim.new(0, 10)
+    local ToggleStroke = Instance.new("UIStroke", ToggleOuter)
+    ToggleStroke.Color = state and Theme.Colors.ActiveBorder or Theme.Colors.ComponentBorder
 
-    local IndCorner = Instance.new("UICorner")
-    IndCorner.CornerRadius = UDim.new(0, 4)
-    IndCorner.Parent = Indicator
+    local Switch = Instance.new("Frame", ToggleOuter)
+    Switch.Size = UDim2.new(0, 14, 0, 14)
+    Switch.Position = state and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
+    Switch.BackgroundColor3 = Theme.Colors.TextColor
+    Switch.ZIndex = 5
+    Instance.new("UICorner", Switch).CornerRadius = UDim.new(0, 7)
 
-    local Button = Instance.new("TextButton")
+    local Button = Instance.new("TextButton", Frame)
     Button.Size = UDim2.new(1, 0, 1, 0)
     Button.BackgroundTransparency = 1
     Button.Text = ""
-    Button.Parent = ToggleFrame
+    Button.ZIndex = 6
 
     Button.MouseButton1Click:Connect(function()
         state = not state
-        Indicator.BackgroundColor3 = state and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(70, 70, 70)
+        ToggleOuter.BackgroundColor3 = state and Theme.Colors.ActiveBg or Color3.fromRGB(15, 30, 60)
+        ToggleStroke.Color = state and Theme.Colors.ActiveBorder or Theme.Colors.ComponentBorder
+        Switch.Position = state and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
         pcall(callback, state)
     end)
 
-    return ToggleFrame
+    return Frame
 end
 
--- Create Slider Component
 function Components.CreateSlider(parent, options)
     options = options or {}
     local name = options.Name or "Slider"
     local min = options.Min or 0
     local max = options.Max or 100
     local default = options.Default or min
+    local iconId = options.Icon or Theme.Icons.Slider
     local callback = options.Callback or function() end
 
-    local SliderFrame = Instance.new("Frame")
-    SliderFrame.Name = name .. "_Slider"
-    SliderFrame.Size = UDim2.new(1, -20, 0, 45)
-    SliderFrame.BackgroundColor3 = Color3.fromRGB(35, 45, 60)
-    SliderFrame.BorderSizePixel = 0
-    SliderFrame.Parent = parent
+    local val = default
+    local Frame, Stroke = createBaseFrame(parent, 50, name .. "_SliderFrame")
 
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 6)
-    Corner.Parent = SliderFrame
+    local Icon = Instance.new("ImageLabel", Frame)
+    Icon.Size = UDim2.new(0, 18, 0, 18)
+    Icon.Position = UDim2.new(0, 10, 0, 10)
+    Icon.BackgroundTransparency = 1
+    Icon.Image = iconId
+    Icon.ImageColor3 = Theme.Colors.SubTitleColor
+    Icon.ZIndex = 4
 
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -60, 0, 20)
-    Label.Position = UDim2.new(0, 10, 0, 5)
+    local Label = Instance.new("TextLabel", Frame)
+    Label.Size = UDim2.new(1, -80, 0, 20)
+    Label.Position = UDim2.new(0, 34, 0, 8)
     Label.BackgroundTransparency = 1
-    Label.Text = name .. " (" .. tostring(default) .. ")"
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.TextSize = 14
+    Label.Text = name
+    Label.TextColor3 = Theme.Colors.TextColor
+    Label.TextSize = 13
+    Label.Font = Enum.Font.GothamMedium
     Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Font = Enum.Font.SourceSans
-    Label.Parent = SliderFrame
+    Label.ZIndex = 4
 
-    local Bar = Instance.new("Frame")
+    local ValLabel = Instance.new("TextLabel", Frame)
+    ValLabel.Size = UDim2.new(0, 40, 0, 20)
+    ValLabel.Position = UDim2.new(1, -50, 0, 8)
+    ValLabel.BackgroundTransparency = 1
+    ValLabel.Text = tostring(val)
+    ValLabel.TextColor3 = Theme.Colors.SubTitleColor
+    ValLabel.TextSize = 12
+    ValLabel.Font = Enum.Font.GothamBold
+    ValLabel.TextXAlignment = Enum.TextXAlignment.Right
+    ValLabel.ZIndex = 4
+
+    local Bar = Instance.new("Frame", Frame)
     Bar.Size = UDim2.new(1, -20, 0, 6)
-    Bar.Position = UDim2.new(0, 10, 0, 30)
-    Bar.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-    Bar.BorderSizePixel = 0
-    Bar.Parent = SliderFrame
+    Bar.Position = UDim2.new(0, 10, 0, 35)
+    Bar.BackgroundColor3 = Color3.fromRGB(15, 30, 60)
+    Bar.ZIndex = 4
+    Instance.new("UICorner", Bar).CornerRadius = UDim.new(0, 3)
 
-    local BarCorner = Instance.new("UICorner")
-    BarCorner.CornerRadius = UDim.new(0, 3)
-    BarCorner.Parent = Bar
+    local Fill = Instance.new("Frame", Bar)
+    Fill.Size = UDim2.new((val - min) / (max - min), 0, 1, 0)
+    Fill.BackgroundColor3 = Theme.Colors.GlowCyan
+    Fill.ZIndex = 5
+    Instance.new("UICorner", Fill).CornerRadius = UDim.new(0, 3)
 
-    local Fill = Instance.new("Frame")
-    Fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-    Fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-    Fill.BorderSizePixel = 0
-    Fill.Parent = Bar
-
-    local FillCorner = Instance.new("UICorner")
-    FillCorner.CornerRadius = UDim.new(0, 3)
-    FillCorner.Parent = Fill
-
-    return SliderFrame
+    return Frame
 end
 
 return Components

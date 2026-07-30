@@ -1,170 +1,240 @@
 --[[
     OceanHub UI Library (OceanLibrary)
-    Main UI Library implementation providing Window, Tab, Button, Toggle, Slider, and Notification creation.
+    Theme: Midnight Ocean (Matching LoaderMenu.lua with glowing corner lights & icons)
+    Comprehensive implementation supporting Window, Tab, Sections, Buttons, Toggles, Sliders, Dropdowns, Textboxes, and Notifications.
 ]]
 
 local OceanLibrary = {}
 OceanLibrary.__index = OceanLibrary
 
+local Theme = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Components/Theme.lua"))() or {}
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Notifications/Notification.lua"))() or {}
 local Components = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Components/Components.lua"))() or {}
+local ExtraComponents = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Components/ExtraComponents.lua"))() or {}
 
 function OceanLibrary:CreateWindow(options)
     options = options or {}
-    local windowTitle = options.Name or "OceanHub UI"
+    local windowTitle = options.Name or "OceanHub"
+    local subTitle = options.SubTitle or "ULTRALIGHT EDITION"
+    local iconId = options.Icon or Theme.Icons.Logo
 
     local CoreGui = game:GetService("CoreGui")
-    
+    local UserInputService = game:GetService("UserInputService")
+
+    if CoreGui:FindFirstChild("OceanHubUI") then
+        CoreGui:FindFirstChild("OceanHubUI"):Destroy()
+    end
+
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "OceanHubMainUI"
+    ScreenGui.Name = "OceanHubUI"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = CoreGui
 
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 550, 0, 380)
-    MainFrame.Position = UDim2.new(0.5, -275, 0.5, -190)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 20, 28)
-    MainFrame.BorderSizePixel = 0
-    MainFrame.Active = true
-    MainFrame.Draggable = true
-    MainFrame.Parent = ScreenGui
+    local Wrapper = Instance.new("Frame")
+    Wrapper.Name = "Wrapper"
+    Wrapper.Size = UDim2.new(0, 560, 0, 400)
+    Wrapper.Position = UDim2.new(0.5, -280, 0.5, -200)
+    Wrapper.BackgroundColor3 = Theme.Colors.BgColor
+    Wrapper.BorderSizePixel = 0
+    Wrapper.ClipsDescendants = true
+    Wrapper.Parent = ScreenGui
 
-    local MainCorner = Instance.new("UICorner")
-    MainCorner.CornerRadius = UDim.new(0, 10)
-    MainCorner.Parent = MainFrame
+    Instance.new("UICorner", Wrapper).CornerRadius = UDim.new(0, 16)
+    local WrapperStroke = Instance.new("UIStroke", Wrapper)
+    WrapperStroke.Color = Theme.Colors.OuterBorderColor
+    WrapperStroke.Thickness = 2.5
+
+    -- Corner Glowing Lights in all 4 corners (Matching LoaderMenu.lua)
+    Theme.AddCornerLights(Wrapper, UDim2.new(0, 240, 0, 240), 1, 0.02)
+
+    -- Main Card Container
+    local MainCard = Instance.new("Frame", Wrapper)
+    MainCard.Name = "MainCard"
+    MainCard.Size = UDim2.new(1, -20, 1, -20)
+    MainCard.Position = UDim2.new(0, 10, 0, 10)
+    MainCard.BackgroundColor3 = Theme.Colors.MainCardBg
+    MainCard.BackgroundTransparency = 0.25
+    MainCard.BorderSizePixel = 0
+    MainCard.ZIndex = 2
+    Instance.new("UICorner", MainCard).CornerRadius = UDim.new(0, 12)
+
+    -- Draggable Feature
+    local dragging, dragInput, dragStart, startPos
+    Wrapper.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true dragStart = input.Position startPos = Wrapper.Position
+            input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
+        end
+    end)
+    Wrapper.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            Wrapper.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
 
     -- Header / Title Bar
-    local TitleBar = Instance.new("Frame")
-    TitleBar.Name = "TitleBar"
-    TitleBar.Size = UDim2.new(1, 0, 0, 40)
-    TitleBar.BackgroundColor3 = Color3.fromRGB(22, 28, 40)
-    TitleBar.BorderSizePixel = 0
-    TitleBar.Parent = MainFrame
+    local Header = Instance.new("Frame", MainCard)
+    Header.Name = "Header"
+    Header.Size = UDim2.new(1, -30, 0, 48)
+    Header.Position = UDim2.new(0, 15, 0, 10)
+    Header.BackgroundTransparency = 1
+    Header.ZIndex = 3
 
-    local TitleCorner = Instance.new("UICorner")
-    TitleCorner.CornerRadius = UDim.new(0, 10)
-    TitleCorner.Parent = TitleBar
+    local LogoBox = Instance.new("Frame", Header)
+    LogoBox.Size = UDim2.new(0, 42, 0, 42)
+    LogoBox.BackgroundColor3 = Theme.Colors.ActiveBg
+    LogoBox.BorderSizePixel = 0
+    LogoBox.ZIndex = 3
+    Instance.new("UICorner", LogoBox).CornerRadius = UDim.new(0, 10)
+    local LogoStroke = Instance.new("UIStroke", LogoBox)
+    LogoStroke.Color = Theme.Colors.OuterBorderColor
+    LogoStroke.Transparency = 0.4
 
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(1, -20, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 15, 0, 0)
+    local LogoImg = Instance.new("ImageLabel", LogoBox)
+    LogoImg.Size = UDim2.new(1, 0, 1, 0)
+    LogoImg.BackgroundTransparency = 1
+    LogoImg.Image = iconId
+    LogoImg.ScaleType = Enum.ScaleType.Fit
+    LogoImg.ZIndex = 4
+    Instance.new("UICorner", LogoImg).CornerRadius = UDim.new(0, 10)
+
+    local TitleLabel = Instance.new("TextLabel", Header)
+    TitleLabel.Size = UDim2.new(1, -120, 0, 20)
+    TitleLabel.Position = UDim2.new(0, 50, 0, 3)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Text = windowTitle
-    TitleLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
-    TitleLabel.TextSize = 16
-    TitleLabel.Font = Enum.Font.SourceSansBold
+    TitleLabel.TextColor3 = Theme.Colors.TitleColor
+    TitleLabel.TextSize = 18
+    TitleLabel.Font = Enum.Font.GothamBold
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLabel.Parent = TitleBar
+    TitleLabel.ZIndex = 3
 
-    -- Tab Bar (Left Side)
-    local TabContainer = Instance.new("Frame")
-    TabContainer.Name = "TabContainer"
-    TabContainer.Size = UDim2.new(0, 140, 1, -50)
-    TabContainer.Position = UDim2.new(0, 10, 0, 45)
-    TabContainer.BackgroundColor3 = Color3.fromRGB(20, 25, 35)
-    TabContainer.BorderSizePixel = 0
-    TabContainer.Parent = MainFrame
+    local SubTitleLabel = Instance.new("TextLabel", Header)
+    SubTitleLabel.Size = UDim2.new(1, -120, 0, 16)
+    SubTitleLabel.Position = UDim2.new(0, 50, 0, 23)
+    SubTitleLabel.BackgroundTransparency = 1
+    SubTitleLabel.Text = subTitle
+    SubTitleLabel.TextColor3 = Theme.Colors.SubTitleColor
+    SubTitleLabel.TextSize = 11
+    SubTitleLabel.Font = Enum.Font.GothamBold
+    SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    SubTitleLabel.ZIndex = 3
 
-    local TabCorner = Instance.new("UICorner")
-    TabCorner.CornerRadius = UDim.new(0, 8)
-    TabCorner.Parent = TabContainer
+    local CloseBtn = Instance.new("TextButton", Header)
+    CloseBtn.Size = UDim2.new(0, 28, 0, 28)
+    CloseBtn.Position = UDim2.new(1, -28, 0, 6)
+    CloseBtn.BackgroundColor3 = Theme.Colors.HeaderBg
+    CloseBtn.BackgroundTransparency = 0.5
+    CloseBtn.Text = "X"
+    CloseBtn.TextColor3 = Theme.Colors.SubTitleColor
+    CloseBtn.TextSize = 13
+    CloseBtn.Font = Enum.Font.GothamBold
+    CloseBtn.ZIndex = 4
+    Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+    local CloseStroke = Instance.new("UIStroke", CloseBtn)
+    CloseStroke.Color = Theme.Colors.ActiveBorder
+    CloseStroke.Transparency = 0.5
 
-    local TabListLayout = Instance.new("UIListLayout")
+    CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+    local HR = Instance.new("Frame", MainCard)
+    HR.Size = UDim2.new(1, -30, 0, 1)
+    HR.Position = UDim2.new(0, 15, 0, 60)
+    HR.BackgroundColor3 = Theme.Colors.HeaderDividerColor
+    HR.BorderSizePixel = 0
+    HR.ZIndex = 3
+
+    -- Tab Container Left Side
+    local TabContainer = Instance.new("Frame", MainCard)
+    TabContainer.Size = UDim2.new(0, 130, 1, -75)
+    TabContainer.Position = UDim2.new(0, 15, 0, 68)
+    TabContainer.BackgroundTransparency = 1
+    TabContainer.ZIndex = 3
+
+    local TabListLayout = Instance.new("UIListLayout", TabContainer)
     TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    TabListLayout.Padding = UDim.new(0, 5)
-    TabListLayout.Parent = TabContainer
+    TabListLayout.Padding = UDim.new(0, 6)
 
-    -- Content Container (Right Side)
-    local ContentContainer = Instance.new("Frame")
-    ContentContainer.Name = "ContentContainer"
-    ContentContainer.Size = UDim2.new(1, -170, 1, -50)
-    ContentContainer.Position = UDim2.new(0, 160, 0, 45)
-    ContentContainer.BackgroundColor3 = Color3.fromRGB(20, 25, 35)
-    ContentContainer.BorderSizePixel = 0
-    ContentContainer.Parent = MainFrame
-
-    local ContentCorner = Instance.new("UICorner")
-    ContentCorner.CornerRadius = UDim.new(0, 8)
-    ContentCorner.Parent = ContentContainer
+    -- Content Container Right Side
+    local ContentContainer = Instance.new("Frame", MainCard)
+    ContentContainer.Size = UDim2.new(1, -160, 1, -75)
+    ContentContainer.Position = UDim2.new(0, 150, 0, 68)
+    ContentContainer.BackgroundTransparency = 1
+    ContentContainer.ZIndex = 3
 
     local WindowObj = {}
     WindowObj.Tabs = {}
-    WindowObj.ActiveTab = nil
 
     function WindowObj:MakeTab(tabOptions)
         tabOptions = tabOptions or {}
         local tabName = tabOptions.Name or "Tab"
+        local tabIcon = tabOptions.Icon or Theme.Icons.Tab
 
-        local TabButton = Instance.new("TextButton")
-        TabButton.Name = tabName .. "_Button"
-        TabButton.Size = UDim2.new(1, 0, 0, 35)
-        TabButton.BackgroundColor3 = Color3.fromRGB(28, 35, 48)
-        TabButton.BorderSizePixel = 0
-        TabButton.Text = tabName
-        TabButton.TextColor3 = Color3.fromRGB(180, 180, 180)
-        TabButton.TextSize = 14
-        TabButton.Font = Enum.Font.SourceSans
-        TabButton.Parent = TabContainer
+        local TabBtn = Instance.new("TextButton", TabContainer)
+        TabBtn.Name = tabName .. "_TabBtn"
+        TabBtn.Size = UDim2.new(1, 0, 0, 32)
+        TabBtn.BackgroundColor3 = Theme.Colors.TabInactiveBg
+        TabBtn.Text = "   " .. tabName
+        TabBtn.TextColor3 = Theme.Colors.TabInactiveText
+        TabBtn.TextSize = 13
+        TabBtn.Font = Enum.Font.GothamBold
+        TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+        TabBtn.ZIndex = 4
 
-        local TabButtonCorner = Instance.new("UICorner")
-        TabButtonCorner.CornerRadius = UDim.new(0, 6)
-        TabButtonCorner.Parent = TabButton
+        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
+        local TabStroke = Instance.new("UIStroke", TabBtn)
+        TabStroke.Color = Theme.Colors.TabInactiveBorder
 
-        local Page = Instance.new("ScrollingFrame")
+        local Page = Instance.new("ScrollingFrame", ContentContainer)
         Page.Name = tabName .. "_Page"
-        Page.Size = UDim2.new(1, -10, 1, -10)
-        Page.Position = UDim2.new(0, 5, 0, 5)
+        Page.Size = UDim2.new(1, 0, 1, 0)
         Page.BackgroundTransparency = 1
         Page.BorderSizePixel = 0
         Page.Visible = false
-        Page.CanvasSize = UDim2.new(0, 0, 0, 0)
         Page.ScrollBarThickness = 4
-        Page.Parent = ContentContainer
+        Page.ScrollBarImageColor3 = Theme.Colors.ActiveBorder
+        Page.ZIndex = 4
 
-        local PageListLayout = Instance.new("UIListLayout")
+        local PageListLayout = Instance.new("UIListLayout", Page)
         PageListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        PageListLayout.Padding = UDim.new(0, 8)
-        PageListLayout.Parent = Page
+        PageListLayout.Padding = UDim.new(0, 6)
 
         PageListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            Page.CanvasSize = UDim2.new(0, 0, 0, PageListLayout.AbsoluteContentSize.Y + 10)
+            Page.CanvasSize = UDim2.new(0, 0, 0, PageListLayout.AbsoluteContentSize.Y + 20)
         end)
 
         local TabObj = {}
+        TabObj.Button = TabBtn
+        TabObj.Page = Page
 
-        function TabObj:AddButton(btnOptions)
-            return Components.CreateButton(Page, btnOptions)
-        end
-
-        function TabObj:AddToggle(tglOptions)
-            return Components.CreateToggle(Page, tglOptions)
-        end
-
-        function TabObj:AddSlider(sldOptions)
-            return Components.CreateSlider(Page, sldOptions)
-        end
+        function TabObj:AddButton(opts) return Components.CreateButton(Page, opts) end
+        function TabObj:AddToggle(opts) return Components.CreateToggle(Page, opts) end
+        function TabObj:AddSlider(opts) return Components.CreateSlider(Page, opts) end
+        function TabObj:AddDropdown(opts) return ExtraComponents.CreateDropdown(Page, opts) end
+        function TabObj:AddTextbox(opts) return ExtraComponents.CreateTextbox(Page, opts) end
 
         local function ActivateTab()
             for _, t in pairs(WindowObj.Tabs) do
                 t.Page.Visible = false
-                t.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
-                t.Button.BackgroundColor3 = Color3.fromRGB(28, 35, 48)
+                t.Button.BackgroundColor3 = Theme.Colors.TabInactiveBg
+                t.Button.TextColor3 = Theme.Colors.TabInactiveText
+                t.Button:FindFirstChildOfClass("UIStroke").Color = Theme.Colors.TabInactiveBorder
             end
             Page.Visible = true
-            TabButton.TextColor3 = Color3.fromRGB(0, 170, 255)
-            TabButton.BackgroundColor3 = Color3.fromRGB(35, 45, 60)
-            WindowObj.ActiveTab = TabObj
+            TabBtn.BackgroundColor3 = Theme.Colors.ActiveBg
+            TabBtn.TextColor3 = Theme.Colors.ActiveText
+            TabStroke.Color = Theme.Colors.ActiveBorder
         end
 
-        TabButton.MouseButton1Click:Connect(ActivateTab)
+        TabBtn.MouseButton1Click:Connect(ActivateTab)
 
         if #WindowObj.Tabs == 0 then
             ActivateTab()
         end
-
-        TabObj.Button = TabButton
-        TabObj.Page = Page
 
         table.insert(WindowObj.Tabs, TabObj)
         return TabObj
