@@ -5,8 +5,7 @@
 local OceanLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/OceanLibrary.lua"))()
 
 local Window = OceanLibrary:CreateWindow({
-    Name = "OceanHub | Arsenal",
-    SubTitle = "ULTIMATE EDITION"
+    Name = "OceanHub | Arsenal"
 })
 
 local MainTab = Window:MakeTab({
