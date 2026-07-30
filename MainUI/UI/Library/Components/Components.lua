@@ -1,6 +1,6 @@
 --[[
-    OceanHub UI Library - Advanced Components
-    Full UI Component implementations matching LoaderMenu.lua design & corner glow themes.
+    OceanHub UI Components
+    Theme: Midnight Ocean (Matching LoaderMenu.lua with glowing corner lights & icons)
 ]]
 
 local Theme = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Components/Theme.lua"))() or {}

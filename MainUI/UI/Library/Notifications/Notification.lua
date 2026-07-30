@@ -1,5 +1,5 @@
 --[[
-    OceanHub Notifications System with Corner Glow Effects & Matching Loader Theme
+    OceanHub Notifications System with Corner Glow Effects
 ]]
 
 local Theme = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/Library/Components/Theme.lua"))() or {}
@@ -50,7 +50,6 @@ function NotificationManager.Notify(options)
     Stroke.Color = Theme.Colors.OuterBorderColor
     Stroke.Thickness = 1.5
 
-    -- Corner Glow Lights
     Theme.AddCornerLights(NotifFrame, UDim2.new(0, 100, 0, 100), 1, 0.05)
 
     local Icon = Instance.new("ImageLabel", NotifFrame)
