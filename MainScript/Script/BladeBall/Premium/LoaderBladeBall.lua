@@ -1,6 +1,13 @@
 --[[
     OceanHub - Blade Ball Premium Script
-    Anti-Kick Bypass + Smart Auto Parry (humanized delays to avoid detection)
+    Anti-Kick + Auto Parry (Xeno Executor Compatible)
+    
+    How it works:
+    - Finds the ball in workspace (checks all descendants)
+    - Checks if ball is targeting LocalPlayer via Attributes/ObjectValue
+    - When ball is close + coming at us → simulate mouse click to parry
+    - Uses humanized random delays to avoid anti-cheat detection
+    - Uses mouse1click() which works on Xeno
 ]]
 
 local OceanLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/OceanLibrary.lua"))()
@@ -15,13 +22,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LP = Players.LocalPlayer
 
 -- ═══════════════════════════════════════════════════
--- ANTI-KICK BYPASS (Same as Free, always active)
+-- ANTI-KICK (Xeno compatible)
 -- ═══════════════════════════════════════════════════
-local antiKickActive = false
+local antiKickDone = false
 
 local function enableAntiKick()
-    if antiKickActive then return end
-    antiKickActive = true
+    if antiKickDone then return end
+    antiKickDone = true
 
     pcall(function()
         local oldKick = hookfunction(LP.Kick, function(self, ...)
@@ -31,23 +38,24 @@ local function enableAntiKick()
     end)
 
     pcall(function()
-        local oldNC = hookmetamethod(game, "__namecall", function(self, ...)
+        local oldNC
+        oldNC = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
             local method = getnamecallmethod()
             if method == "Kick" and self == LP then return end
-            if (method == "TeleportToPlaceInstance" or method == "Teleport") then
+            if (method == "Teleport" or method == "TeleportToPlaceInstance") then
                 local args = {...}
                 if typeof(args[1]) == "number" and args[1] ~= game.PlaceId then return end
             end
             return oldNC(self, ...)
-        end)
+        end))
     end)
 
     pcall(function()
-        for _, remote in ipairs(ReplicatedStorage:GetDescendants()) do
-            if remote:IsA("RemoteEvent") then
-                local n = string.lower(remote.Name)
-                if string.find(n, "kick") or string.find(n, "ban") or string.find(n, "detect") then
-                    remote.OnClientEvent:Connect(function() return end)
+        for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+            if v:IsA("RemoteEvent") then
+                local n = string.lower(v.Name)
+                if string.find(n, "kick") or string.find(n, "ban") or string.find(n, "detect") or string.find(n, "anti") then
+                    v.OnClientEvent:Connect(function() return end)
                 end
             end
         end
@@ -57,120 +65,192 @@ end
 enableAntiKick()
 
 -- ═══════════════════════════════════════════════════
--- SMART AUTO PARRY (Humanized - avoids detection)
+-- AUTO PARRY SETTINGS
 -- ═══════════════════════════════════════════════════
-local AutoParrySettings = {
-    Enabled = false,
-    ParryDistance = 18,
-    MinDelay = 0.05,  -- Minimum reaction delay (humanized)
-    MaxDelay = 0.15,  -- Maximum reaction delay (humanized)
+local Settings = {
+    AutoParry = false,
+    ParryDistance = 15,
+    MinDelay = 0.08,
+    MaxDelay = 0.18,
 }
 
-local lastParryTime = 0
 local parryDebounce = false
+local lastBall = nil
 
--- Find the ball object in workspace
+-- ═══════════════════════════════════════════════════
+-- FIND THE BALL (multiple methods)
+-- ═══════════════════════════════════════════════════
 local function findBall()
-    -- Blade Ball typically has a ball in workspace
-    for _, obj in ipairs(workspace:GetChildren()) do
-        if obj:IsA("BasePart") or obj:IsA("MeshPart") then
+    -- Method 1: Check for known ball names in workspace
+    local ballNames = {"ball", "blade", "soccerball", "dodgeball"}
+    
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if (obj:IsA("BasePart") or obj:IsA("MeshPart") or obj:IsA("UnionOperation")) then
             local name = string.lower(obj.Name)
-            if string.find(name, "ball") or string.find(name, "blade") then
-                return obj
-            end
-        end
-        if obj:IsA("Model") then
-            local name = string.lower(obj.Name)
-            if string.find(name, "ball") or string.find(name, "blade") then
-                local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-                if primary then return primary end
+            for _, bname in ipairs(ballNames) do
+                if string.find(name, bname) then
+                    -- Verify it's actually moving (real ball has velocity)
+                    local vel = obj.AssemblyLinearVelocity
+                    if vel and vel.Magnitude > 1 then
+                        return obj
+                    end
+                    -- Even if not moving fast, if it exists return it
+                    return obj
+                end
             end
         end
     end
-    return nil
-end
-
--- Find the parry remote
-local function findParryRemote()
-    for _, remote in ipairs(ReplicatedStorage:GetDescendants()) do
-        if remote:IsA("RemoteEvent") then
-            local name = string.lower(remote.Name)
-            if string.find(name, "parry") or string.find(name, "block") or string.find(name, "deflect") then
-                return remote
+    
+    -- Method 2: Look for any fast-moving small part (likely the ball)
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if (obj:IsA("BasePart") or obj:IsA("MeshPart")) and not obj.Anchored then
+            local vel = obj.AssemblyLinearVelocity
+            if vel and vel.Magnitude > 50 then
+                local size = obj.Size
+                if size.X < 10 and size.Y < 10 and size.Z < 10 then
+                    -- Small fast-moving unanchored part = likely the ball
+                    return obj
+                end
             end
         end
     end
+    
     return nil
 end
 
--- Check if ball is targeting us
+-- ═══════════════════════════════════════════════════
+-- CHECK IF BALL IS TARGETING US
+-- ═══════════════════════════════════════════════════
 local function isBallTargetingUs(ball)
     if not ball or not ball.Parent then return false end
+    
+    -- Method 1: Check Attributes on ball
+    pcall(function()
+        local target = ball:GetAttribute("Target") or ball:GetAttribute("target")
+        if target then
+            if typeof(target) == "Instance" and target == LP then return true end
+            if typeof(target) == "string" and target == LP.Name then return true end
+        end
+    end)
+    
+    -- Method 2: Check ObjectValue children
+    pcall(function()
+        for _, child in ipairs(ball:GetChildren()) do
+            if child:IsA("ObjectValue") and child.Value == LP then
+                return true
+            end
+            if child:IsA("StringValue") and child.Value == LP.Name then
+                return true
+            end
+        end
+        -- Also check parent model if ball is inside a model
+        if ball.Parent and ball.Parent:IsA("Model") then
+            for _, child in ipairs(ball.Parent:GetChildren()) do
+                if child:IsA("ObjectValue") and child.Value == LP then
+                    return true
+                end
+            end
+        end
+    end)
+    
+    -- Method 3: Check direction + distance (fallback)
     local char = LP.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return false end
-
     local root = char.HumanoidRootPart
     local dist = (ball.Position - root.Position).Magnitude
-
-    if dist > AutoParrySettings.ParryDistance then return false end
-
-    -- Check if ball is moving towards us
-    if ball:IsA("BasePart") then
-        local velocity = ball.AssemblyLinearVelocity or ball.Velocity
-        if velocity and velocity.Magnitude > 5 then
-            local dirToBall = (root.Position - ball.Position).Unit
-            local ballDir = velocity.Unit
-            local dot = dirToBall:Dot(ballDir)
-            return dot > 0.3 -- Ball is moving towards us
+    
+    if dist > Settings.ParryDistance then return false end
+    
+    -- Check velocity direction towards us
+    local vel = ball.AssemblyLinearVelocity
+    if vel and vel.Magnitude > 10 then
+        local dirToUs = (root.Position - ball.Position).Unit
+        local ballDir = vel.Unit
+        local dot = dirToUs:Dot(ballDir)
+        if dot > 0.4 then
+            return true
         end
     end
-
-    return dist <= AutoParrySettings.ParryDistance * 0.5
+    
+    -- Very close = probably targeting us
+    if dist < Settings.ParryDistance * 0.35 then
+        return true
+    end
+    
+    return false
 end
 
--- Auto Parry Loop
-RunService.Heartbeat:Connect(function()
-    if not AutoParrySettings.Enabled then return end
-    if parryDebounce then return end
+-- ═══════════════════════════════════════════════════
+-- DO PARRY (Xeno compatible - uses mouse1click)
+-- ═══════════════════════════════════════════════════
+local function doParry()
+    -- Method 1: mouse1click (works on most executors including Xeno)
+    pcall(function()
+        if mouse1click then
+            mouse1click()
+        end
+    end)
+    
+    -- Method 2: Fire parry/block remote directly
+    pcall(function()
+        for _, remote in ipairs(ReplicatedStorage:GetDescendants()) do
+            if remote:IsA("RemoteEvent") then
+                local n = string.lower(remote.Name)
+                if string.find(n, "parry") or string.find(n, "block")
+                    or string.find(n, "deflect") or string.find(n, "swing") then
+                    remote:FireServer()
+                    break
+                end
+            end
+        end
+    end)
+    
+    -- Method 3: VirtualInputManager fallback
+    pcall(function()
+        local vim = game:GetService("VirtualInputManager")
+        vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+        task.wait(0.03)
+        vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+    end)
+end
 
+-- ═══════════════════════════════════════════════════
+-- AUTO PARRY LOOP
+-- ═══════════════════════════════════════════════════
+RunService.Heartbeat:Connect(function()
+    if not Settings.AutoParry then return end
+    if parryDebounce then return end
+    
     local ball = findBall()
     if not ball then return end
-
+    
     if isBallTargetingUs(ball) then
         parryDebounce = true
-
-        -- Humanized delay (random between min and max)
-        local delay = AutoParrySettings.MinDelay + math.random() * (AutoParrySettings.MaxDelay - AutoParrySettings.MinDelay)
+        
+        -- Humanized delay (random between min and max to avoid detection)
+        local delay = Settings.MinDelay + math.random() * (Settings.MaxDelay - Settings.MinDelay)
         task.wait(delay)
-
-        -- Try to parry via remote
-        local parryRemote = findParryRemote()
-        if parryRemote then
-            pcall(function() parryRemote:FireServer() end)
-        end
-
-        -- Also try clicking (some versions use mouse click to parry)
-        pcall(function()
-            local vim = game:GetService("VirtualInputManager")
-            vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-            task.wait(0.05)
-            vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
-        end)
-
-        -- Cooldown to prevent spam detection
-        task.wait(0.3)
+        
+        -- Execute parry
+        doParry()
+        
+        -- Cooldown to prevent spam (anti-cheat evasion)
+        task.wait(0.4 + math.random() * 0.2)
         parryDebounce = false
     end
 end)
 
--- ═══ UI ═══
+-- ═══════════════════════════════════════════════════
+-- UI
+-- ═══════════════════════════════════════════════════
 local ProtectTab = Window:MakeTab({
     Name = "Protection",
     Icon = "rbxassetid://6031763426"
 })
 
+ProtectTab:AddLabel({ Text = "ANTI-KICK" })
 ProtectTab:AddToggle({
-    Name = "Anti-Kick Bypass",
+    Name = "Anti-Kick (Always On)",
     Default = true,
     Callback = function(val) if val then enableAntiKick() end end
 })
@@ -183,35 +263,35 @@ local ParryTab = Window:MakeTab({
 ParryTab:AddToggle({
     Name = "Smart Auto Parry",
     Default = false,
-    Callback = function(val) AutoParrySettings.Enabled = val end
+    Callback = function(val) Settings.AutoParry = val end
 })
 
 ParryTab:AddSlider({
     Name = "Parry Distance",
-    Min = 8,
-    Max = 40,
-    Default = 18,
-    Callback = function(val) AutoParrySettings.ParryDistance = val end
-})
-
-ParryTab:AddSlider({
-    Name = "Min Delay (x0.01s)",
-    Min = 1,
-    Max = 30,
-    Default = 5,
-    Callback = function(val) AutoParrySettings.MinDelay = val * 0.01 end
-})
-
-ParryTab:AddSlider({
-    Name = "Max Delay (x0.01s)",
     Min = 5,
-    Max = 50,
+    Max = 35,
     Default = 15,
-    Callback = function(val) AutoParrySettings.MaxDelay = val * 0.01 end
+    Callback = function(val) Settings.ParryDistance = val end
+})
+
+ParryTab:AddSlider({
+    Name = "Min Delay (ms)",
+    Min = 30,
+    Max = 300,
+    Default = 80,
+    Callback = function(val) Settings.MinDelay = val / 1000 end
+})
+
+ParryTab:AddSlider({
+    Name = "Max Delay (ms)",
+    Min = 50,
+    Max = 500,
+    Default = 180,
+    Callback = function(val) Settings.MaxDelay = val / 1000 end
 })
 
 OceanLibrary:Notify({
     Title = "OceanHub VIP",
-    Content = "Blade Ball Premium loaded! Anti-Kick + Smart Auto Parry active.",
+    Content = "Blade Ball Premium loaded! Anti-Kick + Smart Parry (Xeno OK)",
     Duration = 7
 })
