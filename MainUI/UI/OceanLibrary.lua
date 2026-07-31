@@ -732,7 +732,7 @@ function OceanLib:CreateWindow(options)
     headerBar.Size = UDim2.new(1, 0, 0, 52)
     headerBar.BackgroundColor3 = P.Bg3; headerBar.BackgroundTransparency = 0.3
     headerBar.BorderSizePixel = 0; headerBar.ZIndex = 3
-    -- No UICorner - flush with top
+    Instance.new("UICorner", headerBar).CornerRadius = UDim.new(0, 14)
 
     -- Header bottom gradient line
     local headerLine = Instance.new("Frame", main)
