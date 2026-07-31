@@ -1,6 +1,6 @@
 --[[
-    OceanHub - Blade Ball Free Script
-    Anti-Kick Only (Safe method, Xeno compatible)
+    OceanHub - Blade Ball Free Script v3
+    Anti-Kick Bypass (BAC Compatible)
 ]]
 
 local OceanLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/OceanLibrary.lua"))()
@@ -12,16 +12,17 @@ local Window = OceanLibrary:CreateWindow({
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 
--- ═══ ANTI-KICK (Safe - doesn't break game) ═══
+local AntiKickState = true
+
 pcall(function()
-    local oldKick = LP.Kick
-    LP.Kick = function(self, ...)
-        if self == LP then
-            warn("[OceanHub] Kick blocked")
+    local oldKick
+    oldKick = hookfunction(LP.Kick, newcclosure(function(self, ...)
+        if AntiKickState and self == LP then
+            warn("[OceanHub] Kick blocked!")
             return
         end
         return oldKick(self, ...)
-    end
+    end))
 end)
 
 -- ═══ UI ═══
@@ -30,12 +31,12 @@ local MainTab = Window:MakeTab({
     Icon = "rbxassetid://6031763426"
 })
 
-MainTab:AddLabel({ Text = "ANTI-KICK ACTIVE" })
-
 MainTab:AddToggle({
-    Name = "Anti-Kick (Always On)",
+    Name = "BAC Anti-Kick Bypass",
     Default = true,
-    Callback = function() end
+    Callback = function(val)
+        AntiKickState = val
+    end
 })
 
 OceanLibrary:Notify({
