@@ -307,11 +307,14 @@ local function AddToggle(parent, opts)
     local default = opts.Default or false
     local cb = opts.Callback or function() end
     local state = default
+    local hasBind = opts.Keybind ~= nil
+    local currentBind = type(opts.Keybind) == "string" and opts.Keybind or nil
+    local bindCb = opts.BindCallback or function() end
 
     local f, s = makeComp(parent, 38, name)
 
     local lbl = Instance.new("TextLabel", f)
-    lbl.Size = UDim2.new(1, -75, 1, 0); lbl.Position = UDim2.new(0, 14, 0, 0)
+    lbl.Size = UDim2.new(1, -120, 1, 0); lbl.Position = UDim2.new(0, 14, 0, 0)
     lbl.BackgroundTransparency = 1; lbl.Text = name
     lbl.TextColor3 = P.TextPri; lbl.TextSize = 13
     lbl.Font = Enum.Font.GothamMedium; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.ZIndex = 7
@@ -364,8 +367,92 @@ local function AddToggle(parent, opts)
     check.TextColor3 = P.GreenDark; check.TextSize = 11
     check.Font = Enum.Font.GothamBold; check.ZIndex = 9
 
+    -- Keybind Button (Left of Toggle)
+    local bindBtn
+    local binding = false
+    if hasBind then
+        local bindFrame = Instance.new("Frame", f)
+        bindFrame.Size = UDim2.new(0, 60, 0, 24)
+        bindFrame.Position = UDim2.new(1, -125, 0.5, -12)
+        bindFrame.BackgroundColor3 = P.Bg1; bindFrame.ZIndex = 7
+        Instance.new("UICorner", bindFrame).CornerRadius = UDim.new(0, 6)
+        local bfs = Instance.new("UIStroke", bindFrame); bfs.Color = P.Border1
+
+        bindBtn = Instance.new("TextButton", bindFrame)
+        bindBtn.Size = UDim2.new(1, 0, 1, 0); bindBtn.BackgroundTransparency = 1
+        bindBtn.Text = currentBind and currentBind or "Bind"
+        bindBtn.TextColor3 = P.TextMut; bindBtn.TextSize = 10
+        bindBtn.Font = Enum.Font.GothamBold; bindBtn.ZIndex = 8
+
+        bindBtn.MouseButton1Click:Connect(function()
+            if binding then return end
+            binding = true
+            bindBtn.Text = "..."
+            bindBtn.TextColor3 = P.Cyan
+            bfs.Color = P.Cyan
+        end)
+        
+        bindBtn.MouseButton2Click:Connect(function() -- Clear bind on right click
+            currentBind = nil
+            bindBtn.Text = "Bind"
+            bindBtn.TextColor3 = P.TextMut
+            bfs.Color = P.Border1
+            binding = false
+            pcall(bindCb, nil)
+        end)
+
+        UIS.InputBegan:Connect(function(input)
+            if binding then
+                if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode ~= Enum.KeyCode.Unknown then
+                    currentBind = input.KeyCode.Name
+                elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    currentBind = "MB1"
+                elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
+                    currentBind = "MB2"
+                elseif input.UserInputType == Enum.UserInputType.MouseButton3 then
+                    currentBind = "MB3"
+                elseif input.UserInputType == Enum.UserInputType.MouseButton4 then
+                    currentBind = "MB4"
+                elseif input.UserInputType == Enum.UserInputType.MouseButton5 then
+                    currentBind = "MB5"
+                else
+                    return
+                end
+                
+                binding = false
+                bindBtn.Text = currentBind
+                bindBtn.TextColor3 = P.TextPri
+                bfs.Color = P.Border1
+                pcall(bindCb, currentBind)
+            else
+                if currentBind then
+                    local pressed = false
+                    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode.Name == currentBind then
+                        pressed = true
+                    elseif input.UserInputType == Enum.UserInputType.MouseButton1 and currentBind == "MB1" then
+                        pressed = true
+                    elseif input.UserInputType == Enum.UserInputType.MouseButton2 and currentBind == "MB2" then
+                        pressed = true
+                    elseif input.UserInputType == Enum.UserInputType.MouseButton3 and currentBind == "MB3" then
+                        pressed = true
+                    elseif input.UserInputType == Enum.UserInputType.MouseButton4 and currentBind == "MB4" then
+                        pressed = true
+                    elseif input.UserInputType == Enum.UserInputType.MouseButton5 and currentBind == "MB5" then
+                        pressed = true
+                    end
+                    
+                    if pressed then
+                        state = not state
+                        updateToggle()
+                        pcall(cb, state)
+                    end
+                end
+            end
+        end)
+    end
+
     local btn = Instance.new("TextButton", f)
-    btn.Size = UDim2.new(1, 0, 1, 0); btn.BackgroundTransparency = 1
+    btn.Size = UDim2.new(1, -130, 1, 0); btn.BackgroundTransparency = 1
     btn.Text = ""; btn.ZIndex = 10
 
     local function updateToggle()
@@ -394,6 +481,17 @@ local function AddToggle(parent, opts)
     btn.MouseButton1Click:Connect(function()
         state = not state; updateToggle(); pcall(cb, state)
     end)
+    
+    -- Expose updateToggle so we can trigger it externally if needed, and make it part of the returned object
+    -- But currently OceanLibrary returns just `f`, so let's stick to that.
+    -- Wait, btn covers the toggle. We need to make sure `btn` doesn't cover the keybind button.
+    -- `btn.Size = UDim2.new(1, -130, 1, 0)` is good. Also let's make sure the actual toggle track has a button.
+    local trackBtn = Instance.new("TextButton", track)
+    trackBtn.Size = UDim2.new(1,0,1,0); trackBtn.BackgroundTransparency = 1; trackBtn.Text = ""; trackBtn.ZIndex = 10
+    trackBtn.MouseButton1Click:Connect(function()
+        state = not state; updateToggle(); pcall(cb, state)
+    end)
+
     return f
 end
 

@@ -182,64 +182,51 @@ end
 -- ═══════════════════════════════════════════════════
 -- UI
 -- ═══════════════════════════════════════════════════
-local ProtectTab = Window:MakeTab({
-    Name = "Protection",
-    Icon = "rbxassetid://6031763426"
-})
+local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
+InfoTab:AddLabel({ Text = "Tier: Premium" })
+InfoTab:AddLabel({ Text = "Status Key: unlimited" })
+InfoTab:AddLabel({ Text = "Script: Blade Ball" })
 
-ProtectTab:AddToggle({
-    Name = "BAC Anti-Kick Bypass",
-    Default = true,
-    Callback = function(val)
-        AntiKickState = val
+local ParryTab = Window:MakeTab({ Name = "Auto Parry", Icon = "rbxassetid://6031068452" })
+ParryTab:AddToggle({ Name = "Auto Parry", Keybind = "F", Default = false, Callback = function(val)
+    Settings.AutoParry = val
+    if val then debugBallInfo() end
+end })
+ParryTab:AddToggle({ Name = "BAC Anti-Kick Bypass", Keybind = "V", Default = true, Callback = function(val)
+    AntiKickState = val
+end })
+ParryTab:AddSlider({ Name = "Parry Distance", Min = 5, Max = 35, Default = 15, Callback = function(val) Settings.ParryDistance = val end })
+ParryTab:AddSlider({ Name = "Min Delay (ms)", Min = 10, Max = 150, Default = 50, Callback = function(val) Settings.MinDelay = val / 1000 end })
+ParryTab:AddSlider({ Name = "Max Delay (ms)", Min = 40, Max = 300, Default = 120, Callback = function(val) Settings.MaxDelay = val / 1000 end })
+ParryTab:AddButton({ Name = "Debug: Find Ball", Callback = function() debugBallInfo() end })
+
+local MiscTab = Window:MakeTab({ Name = "misc", Icon = "rbxassetid://6031068426" })
+MiscTab:AddSlider({ Name = "WalkSpeed", Min = 16, Max = 120, Default = 16, Callback = function(val)
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.WalkSpeed = val end
+end })
+MiscTab:AddSlider({ Name = "JumpPower", Min = 50, Max = 300, Default = 50, Callback = function(val)
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.JumpPower = val end
+end })
+
+local PremiumTab = Window:MakeTab({ Name = ".", Icon = "rbxassetid://6031068428" })
+PremiumTab:AddToggle({ Name = "Light (Corner Glow)", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then
+        for _, g in ipairs(sg:GetDescendants()) do
+            if g.Name == "SuperThickCornerGlow" or g.Name == "Glow" then g.Visible = val end
+        end
     end
-})
-
-local ParryTab = Window:MakeTab({
-    Name = "Auto Parry",
-    Icon = "rbxassetid://6031068452"
-})
-
-ParryTab:AddToggle({
-    Name = "Auto Parry",
-    Default = false,
-    Callback = function(val)
-        Settings.AutoParry = val
-        if val then debugBallInfo() end
+end })
+PremiumTab:AddToggle({ Name = "Background Effects", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then
+        local w = sg:FindFirstChild("Wrapper")
+        if w then w.BackgroundTransparency = val and 0 or 1 end
     end
-})
-
-ParryTab:AddSlider({
-    Name = "Parry Distance",
-    Min = 5,
-    Max = 35,
-    Default = 15,
-    Callback = function(val) Settings.ParryDistance = val end
-})
-
-ParryTab:AddSlider({
-    Name = "Min Delay (ms)",
-    Min = 10,
-    Max = 150,
-    Default = 50,
-    Callback = function(val) Settings.MinDelay = val / 1000 end
-})
-
-ParryTab:AddSlider({
-    Name = "Max Delay (ms)",
-    Min = 40,
-    Max = 300,
-    Default = 120,
-    Callback = function(val) Settings.MaxDelay = val / 1000 end
-})
-
-ParryTab:AddButton({
-    Name = "Debug: Find Ball",
-    Callback = function() debugBallInfo() end
-})
+end })
 
 OceanLibrary:Notify({
     Title = "OceanHub VIP",
-    Content = "Blade Ball v3 loaded with BAC Anti-Kick Toggle!",
+    Content = "Blade Ball v4 Premium loaded!",
     Duration = 5
 })

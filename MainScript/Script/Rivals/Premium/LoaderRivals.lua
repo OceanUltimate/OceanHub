@@ -23,7 +23,7 @@ local AimbotSettings = {
     FOV = 120,
     Smoothness = 8,
     TargetPart = "Head",
-    TeamCheck = true,
+    WallCheck = false,
     LockedTarget = nil,
     LockOnPlayer = true,
 }
@@ -39,9 +39,25 @@ local function isAlive(player)
 end
 
 local function isTeammate(player)
-    if not AimbotSettings.TeamCheck then return false end
     if LP.Team and player.Team and LP.Team == player.Team then return true end
     return false
+end
+
+local function getPartName()
+    if AimbotSettings.TargetPart == "Body" then return "HumanoidRootPart" end
+    if AimbotSettings.TargetPart == "Leg" then return "LeftFoot" end
+    return "Head"
+end
+
+local function isVisible(pos)
+    if not AimbotSettings.WallCheck then return true end
+    local char = LP.Character
+    if not char or not char:FindFirstChild("Head") then return false end
+    local params = RaycastParams.new()
+    params.FilterDescendantsInstances = {char}
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    local result = workspace:Raycast(char.Head.Position, pos - char.Head.Position, params)
+    return result == nil
 end
 
 local function getClosestPlayerToMouse()
@@ -50,10 +66,10 @@ local function getClosestPlayerToMouse()
 
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LP and isAlive(player) and not isTeammate(player) then
-            local part = player.Character:FindFirstChild(AimbotSettings.TargetPart)
+            local part = player.Character:FindFirstChild(getPartName())
             if part then
                 local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
-                if onScreen then
+                if onScreen and isVisible(part.Position) then
                     local mousePos = Vector2.new(Mouse.X, Mouse.Y)
                     local dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
                     if dist < shortestDist then
@@ -88,27 +104,24 @@ RunService.RenderStepped:Connect(function()
         return
     end
 
-    -- Lock-on system: keep targeting same player until invalid
     if AimbotSettings.LockOnPlayer and AimbotSettings.LockedTarget then
         if isAlive(AimbotSettings.LockedTarget) and not isTeammate(AimbotSettings.LockedTarget) then
-            local part = AimbotSettings.LockedTarget.Character:FindFirstChild(AimbotSettings.TargetPart)
+            local part = AimbotSettings.LockedTarget.Character:FindFirstChild(getPartName())
             if part then
                 local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
-                if onScreen then
+                if onScreen and isVisible(part.Position) then
                     smoothAimAt(part)
                     return
                 end
             end
         end
-        -- Target invalid, unlock
         AimbotSettings.LockedTarget = nil
     end
 
-    -- Find new target
     local target = getClosestPlayerToMouse()
     if target then
         AimbotSettings.LockedTarget = target
-        local part = target.Character:FindFirstChild(AimbotSettings.TargetPart)
+        local part = target.Character:FindFirstChild(getPartName())
         if part then
             smoothAimAt(part)
         end
@@ -124,69 +137,19 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ═══ UI TABS ═══
-local CombatTab = Window:MakeTab({
-    Name = "Combat",
-    Icon = "rbxassetid://6031763426"
-})
+local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
+InfoTab:AddLabel({ Text = "Tier: Premium" })
+InfoTab:AddLabel({ Text = "Status Key: unlimited" })
+InfoTab:AddLabel({ Text = "Script: Rivals" })
 
-CombatTab:AddToggle({
-    Name = "Aimbot (Smooth Lock-On)",
-    Default = false,
-    Callback = function(val)
-        AimbotSettings.Enabled = val
-        if not val then AimbotSettings.LockedTarget = nil end
-    end
-})
+local CombatTab = Window:MakeTab({ Name = "Combat", Icon = "rbxassetid://6031763426" })
+CombatTab:AddToggle({ Name = "Aimbot (Smooth Lock-On)", Keybind = "E", Default = false,
+    Callback = function(val) AimbotSettings.Enabled = val; if not val then AimbotSettings.LockedTarget = nil end end })
+CombatTab:AddToggle({ Name = "No Recoil", Keybind = "R", Default = false, Callback = function(val) AimbotSettings.NoRecoil = val end })
+CombatTab:AddToggle({ Name = "Wallcheck", Keybind = "C", Default = false, Callback = function(val) AimbotSettings.WallCheck = val end })
+CombatTab:AddDropdown({ Name = "Target Part", Options = {"Head", "Body", "Leg"}, Default = "Head", Callback = function(val) AimbotSettings.TargetPart = val end })
 
-CombatTab:AddSlider({
-    Name = "Smoothness",
-    Min = 1,
-    Max = 20,
-    Default = 8,
-    Callback = function(val)
-        AimbotSettings.Smoothness = val
-    end
-})
-
-CombatTab:AddSlider({
-    Name = "FOV Radius",
-    Min = 30,
-    Max = 500,
-    Default = 120,
-    Callback = function(val)
-        AimbotSettings.FOV = val
-    end
-})
-
-CombatTab:AddToggle({
-    Name = "No Recoil",
-    Default = false,
-    Callback = function(val)
-        AimbotSettings.NoRecoil = val
-    end
-})
-
-CombatTab:AddToggle({
-    Name = "Team Check",
-    Default = true,
-    Callback = function(val)
-        AimbotSettings.TeamCheck = val
-    end
-})
-
-CombatTab:AddDropdown({
-    Name = "Target Part",
-    Options = {"Head", "HumanoidRootPart", "UpperTorso"},
-    Default = "Head",
-    Callback = function(val)
-        AimbotSettings.TargetPart = val
-    end
-})
-
-local VisualTab = Window:MakeTab({
-    Name = "Visuals",
-    Icon = "rbxassetid://6031068452"
-})
+local VisualTab = Window:MakeTab({ Name = "Visuals", Icon = "rbxassetid://6031068452" })
 
 -- ═══ ESP ═══
 local ESPEnabled = false
@@ -196,15 +159,10 @@ local function createESP(player)
     if player == LP then return end
     local function onCharAdded(char)
         local hl = Instance.new("Highlight")
-        hl.Name = "OceanESP"
-        hl.FillColor = Color3.fromRGB(56, 189, 248)
-        hl.FillTransparency = 0.7
-        hl.OutlineColor = Color3.fromRGB(56, 189, 248)
-        hl.OutlineTransparency = 0
-        hl.Adornee = char
-        hl.Parent = char
-        hl.Enabled = ESPEnabled
-        espObjects[player] = hl
+        hl.Name = "OceanESP"; hl.FillColor = Color3.fromRGB(56, 189, 248)
+        hl.FillTransparency = 0.7; hl.OutlineColor = Color3.fromRGB(56, 189, 248)
+        hl.OutlineTransparency = 0; hl.Adornee = char; hl.Parent = char
+        hl.Enabled = ESPEnabled; espObjects[player] = hl
     end
     if player.Character then onCharAdded(player.Character) end
     player.CharacterAdded:Connect(onCharAdded)
@@ -212,62 +170,29 @@ end
 
 local function toggleESP(val)
     ESPEnabled = val
-    for _, obj in pairs(espObjects) do
-        if obj and obj.Parent then obj.Enabled = val end
-    end
-    if val then
-        for _, p in ipairs(Players:GetPlayers()) do createESP(p) end
-    end
+    for _, obj in pairs(espObjects) do if obj and obj.Parent then obj.Enabled = val end end
+    if val then for _, p in ipairs(Players:GetPlayers()) do createESP(p) end end
 end
 
-Players.PlayerAdded:Connect(function(p)
-    if ESPEnabled then createESP(p) end
-end)
-Players.PlayerRemoving:Connect(function(p)
-    if espObjects[p] then espObjects[p]:Destroy(); espObjects[p] = nil end
-end)
+Players.PlayerAdded:Connect(function(p) if ESPEnabled then createESP(p) end end)
+Players.PlayerRemoving:Connect(function(p) if espObjects[p] then espObjects[p]:Destroy(); espObjects[p] = nil end end)
 
-VisualTab:AddToggle({
-    Name = "ESP Highlight",
-    Default = false,
-    Callback = function(val)
-        toggleESP(val)
-    end
-})
+VisualTab:AddToggle({ Name = "ESP Highlight", Keybind = "P", Default = false, Callback = function(val) toggleESP(val) end })
 
-local MiscTab = Window:MakeTab({
-    Name = "Movement",
-    Icon = "rbxassetid://6031068426"
-})
+local MiscTab = Window:MakeTab({ Name = "misc", Icon = "rbxassetid://6031068426" })
+MiscTab:AddSlider({ Name = "Speed Multiplier", Min = 16, Max = 120, Default = 16,
+    Callback = function(val) local char = LP.Character; if char and char:FindFirstChild("Humanoid") then char.Humanoid.WalkSpeed = val end end })
+MiscTab:AddSlider({ Name = "Jump Power", Min = 50, Max = 300, Default = 50,
+    Callback = function(val) local char = LP.Character; if char and char:FindFirstChild("Humanoid") then char.Humanoid.JumpPower = val end end })
 
-MiscTab:AddSlider({
-    Name = "Speed Multiplier",
-    Min = 16,
-    Max = 120,
-    Default = 16,
-    Callback = function(val)
-        local char = LP.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.WalkSpeed = val
-        end
-    end
-})
+local PremiumTab = Window:MakeTab({ Name = ".", Icon = "rbxassetid://6031068428" })
+PremiumTab:AddToggle({ Name = "Light (Corner Glow)", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then for _, g in ipairs(sg:GetDescendants()) do if g.Name == "SuperThickCornerGlow" or g.Name == "Glow" then g.Visible = val end end end
+end })
+PremiumTab:AddToggle({ Name = "Background Effects", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then local w = sg:FindFirstChild("Wrapper"); if w then w.BackgroundTransparency = val and 0 or 1 end end
+end })
 
-MiscTab:AddSlider({
-    Name = "Jump Power",
-    Min = 50,
-    Max = 300,
-    Default = 50,
-    Callback = function(val)
-        local char = LP.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.JumpPower = val
-        end
-    end
-})
-
-OceanLibrary:Notify({
-    Title = "OceanHub VIP",
-    Content = "Rivals Premium loaded! Smooth aimbot active.",
-    Duration = 5
-})
+OceanLibrary:Notify({ Title = "OceanHub VIP", Content = "Rivals Premium loaded! Smooth aimbot active.", Duration = 5 })

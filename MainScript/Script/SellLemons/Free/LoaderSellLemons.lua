@@ -79,31 +79,29 @@ end
 startAutoButton()
 
 -- ═══ UI ═══
-local MainTab = Window:MakeTab({
-    Name = "Auto Farm",
-    Icon = "rbxassetid://6031763426"
-})
+local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
+InfoTab:AddLabel({ Text = "Tier: Free" })
+InfoTab:AddLabel({ Text = "Status Key: Free" })
+InfoTab:AddLabel({ Text = "Script: Sell Lemons" })
 
-MainTab:AddToggle({
-    Name = "Auto Button Press",
-    Default = false,
-    Callback = function(val)
-        AutoButton.Enabled = val
-    end
-})
+local MainTab = Window:MakeTab({ Name = "Auto Farm", Icon = "rbxassetid://6031763426" })
+MainTab:AddToggle({ Name = "Auto Button Press", Keybind = "F", Default = false, Callback = function(val)
+    AutoButton.Enabled = val
+end })
+MainTab:AddSlider({ Name = "Button Range", Min = 5, Max = 50, Default = 15, Callback = function(val)
+    AutoButton.Range = val
+end })
 
-MainTab:AddSlider({
-    Name = "Button Range",
-    Min = 5,
-    Max = 50,
-    Default = 15,
-    Callback = function(val)
-        AutoButton.Range = val
-    end
-})
+local MiscTab = Window:MakeTab({ Name = "misc", Icon = "rbxassetid://6031068426" })
+MiscTab:AddSlider({ Name = "WalkSpeed", Min = 16, Max = 120, Default = 16, Callback = function(val)
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.WalkSpeed = val end
+end })
+MiscTab:AddSlider({ Name = "JumpPower", Min = 50, Max = 300, Default = 50, Callback = function(val)
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.JumpPower = val end
+end })
 
 OceanLibrary:Notify({
     Title = "OceanHub Free",
-    Content = "Sell Lemons Free loaded!",
+    Content = "Sell Lemons loaded!",
     Duration = 5
 })

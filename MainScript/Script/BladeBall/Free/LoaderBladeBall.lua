@@ -1,5 +1,5 @@
 --[[
-    OceanHub - Blade Ball Free Script v3
+    OceanHub - Blade Ball Free Script v4
     Anti-Kick Bypass (BAC Compatible)
 ]]
 
@@ -26,6 +26,15 @@ pcall(function()
 end)
 
 -- ═══ UI ═══
+local InfoTab = Window:MakeTab({
+    Name = "Info",
+    Icon = "rbxassetid://8356815386"
+})
+
+InfoTab:AddLabel({ Text = "Tier: Free" })
+InfoTab:AddLabel({ Text = "Status Key: Free" })
+InfoTab:AddLabel({ Text = "Script: Blade Ball" })
+
 local MainTab = Window:MakeTab({
     Name = "Protection",
     Icon = "rbxassetid://6031763426"
@@ -39,8 +48,37 @@ MainTab:AddToggle({
     end
 })
 
+local MiscTab = Window:MakeTab({
+    Name = "misc",
+    Icon = "rbxassetid://6031068426"
+})
+
+MiscTab:AddSlider({
+    Name = "WalkSpeed",
+    Min = 16,
+    Max = 120,
+    Default = 16,
+    Callback = function(val)
+        if LP.Character and LP.Character:FindFirstChild("Humanoid") then
+            LP.Character.Humanoid.WalkSpeed = val
+        end
+    end
+})
+
+MiscTab:AddSlider({
+    Name = "JumpPower",
+    Min = 50,
+    Max = 300,
+    Default = 50,
+    Callback = function(val)
+        if LP.Character and LP.Character:FindFirstChild("Humanoid") then
+            LP.Character.Humanoid.JumpPower = val
+        end
+    end
+})
+
 OceanLibrary:Notify({
     Title = "OceanHub Free",
-    Content = "Blade Ball Anti-Kick active!",
+    Content = "Blade Ball loaded!",
     Duration = 5
 })

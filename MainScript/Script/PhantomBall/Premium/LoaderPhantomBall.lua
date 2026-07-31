@@ -145,15 +145,17 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- ═══ UI ═══
-local ProtectTab = Window:MakeTab({ Name = "Protection", Icon = "rbxassetid://6031763426" })
-ProtectTab:AddLabel({ Text = "ANTI-KICK ALWAYS ON" })
+local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
+InfoTab:AddLabel({ Text = "Tier: Premium" })
+InfoTab:AddLabel({ Text = "Status Key: unlimited" })
+InfoTab:AddLabel({ Text = "Script: Phantom Ball" })
 
 local ParryTab = Window:MakeTab({ Name = "Auto Parry", Icon = "rbxassetid://6031068452" })
 
-ParryTab:AddToggle({ Name = "Smart Auto Parry", Default = false,
+ParryTab:AddToggle({ Name = "Smart Auto Parry", Keybind = "F", Default = false,
     Callback = function(v) Settings.AutoParry = v end })
 
-ParryTab:AddToggle({ Name = "Auto Dodge", Default = false,
+ParryTab:AddToggle({ Name = "Auto Dodge", Keybind = "C", Default = false,
     Callback = function(v) Settings.AutoDodge = v end })
 
 ParryTab:AddSlider({ Name = "Parry Distance", Min = 8, Max = 40, Default = 20,
@@ -168,8 +170,33 @@ ParryTab:AddSlider({ Name = "Min Delay (x0.01s)", Min = 1, Max = 20, Default = 4
 ParryTab:AddSlider({ Name = "Max Delay (x0.01s)", Min = 3, Max = 40, Default = 12,
     Callback = function(v) Settings.MaxDelay = v * 0.01 end })
 
+local MiscTab = Window:MakeTab({ Name = "misc", Icon = "rbxassetid://6031068426" })
+MiscTab:AddSlider({ Name = "WalkSpeed", Min = 16, Max = 120, Default = 16, Callback = function(val)
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.WalkSpeed = val end
+end })
+MiscTab:AddSlider({ Name = "JumpPower", Min = 50, Max = 300, Default = 50, Callback = function(val)
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.JumpPower = val end
+end })
+
+local PremiumTab = Window:MakeTab({ Name = ".", Icon = "rbxassetid://6031068428" })
+PremiumTab:AddToggle({ Name = "Light (Corner Glow)", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then
+        for _, g in ipairs(sg:GetDescendants()) do
+            if g.Name == "SuperThickCornerGlow" or g.Name == "Glow" then g.Visible = val end
+        end
+    end
+end })
+PremiumTab:AddToggle({ Name = "Background Effects", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then
+        local w = sg:FindFirstChild("Wrapper")
+        if w then w.BackgroundTransparency = val and 0 or 1 end
+    end
+end })
+
 OceanLibrary:Notify({
     Title = "OceanHub VIP",
-    Content = "Phantom Ball Premium loaded! Anti-Kick + Auto Parry + Dodge.",
+    Content = "Phantom Ball Premium loaded!",
     Duration = 7
 })

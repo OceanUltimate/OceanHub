@@ -367,7 +367,7 @@ fS2.ZIndex = 3
 fConfirmBtn.MouseButton1Click:Connect(function()
     fS1.Visible = false
     fS2.Visible = true
-    createGameList(fS2, "free", {"Arsenal", "Rivals", "Sell Lemons", "Sniper Arena", "Blade Ball", "Phantom Ball"}, function()
+    createGameList(fS2, "free", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
         fS2.Visible = false
         fS1.Visible = true
     end)
@@ -472,10 +472,13 @@ fmS2.Visible = false
 fmS2.ZIndex = 3
 
 fmBtn.MouseButton1Click:Connect(function()
-    if fmKeyIn.Text ~= "" and string.sub(string.lower(fmKeyIn.Text), 1, 6) == "ocean-" then
+    local keyText = fmKeyIn.Text
+    local lKey = string.lower(keyText)
+    if keyText ~= "" and (string.find(lKey, "oceanfreeium-") or lKey == "ocean") then
+        if lKey ~= "ocean" then pcall(function() writefile("OceanHubKey.txt", keyText) end) end
         fmS1.Visible = false
         fmS2.Visible = true
-        createGameList(fmS2, "freemium", {"Arsenal", "Rivals", "Sell Lemons", "Sniper Arena", "Blade Ball", "Phantom Ball"}, function()
+        createGameList(fmS2, "freemium", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
             fmS2.Visible = false
             fmS1.Visible = true
         end)
@@ -540,10 +543,13 @@ pS2.Visible = false
 pS2.ZIndex = 3
 
 pBtn.MouseButton1Click:Connect(function()
-    if pKeyIn.Text ~= "" and string.sub(string.lower(pKeyIn.Text), 1, 6) == "ocean-" then
+    local keyText = pKeyIn.Text
+    local lKey = string.lower(keyText)
+    if keyText ~= "" and (string.find(lKey, "oceanpremium-") or lKey == "ocean") then
+        if lKey ~= "ocean" then pcall(function() writefile("OceanHubKey.txt", keyText) end) end
         pS1.Visible = false
         pS2.Visible = true
-        createGameList(pS2, "premium", {"Arsenal", "Rivals", "Sell Lemons", "Sniper Arena", "Blade Ball", "Phantom Ball"}, function()
+        createGameList(pS2, "premium", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
             pS2.Visible = false
             pS1.Visible = true
         end)
@@ -663,3 +669,36 @@ for _, tab in ipairs(tabDefs) do
 end
 
 switchTab("free")
+
+-- AUTO-SAVE KEY LOGIC
+task.spawn(function()
+    pcall(function()
+        if isfile("OceanHubKey.txt") then
+            local savedKey = readfile("OceanHubKey.txt")
+            local lKey = string.lower(savedKey)
+            if string.find(lKey, "oceanpremium-") then
+                pKeyIn.Text = savedKey
+                -- Verify immediately
+                switchTab("premium")
+                pS1.Visible = false
+                pS2.Visible = true
+                createGameList(pS2, "premium", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
+                    pS2.Visible = false
+                    pS1.Visible = true
+                end)
+            elseif string.find(lKey, "oceanfreeium-") then
+                fmKeyIn.Text = savedKey
+                switchTab("freemium")
+                fmS1.Visible = false
+                fmS2.Visible = true
+                createGameList(fmS2, "freemium", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
+                    fmS2.Visible = false
+                    fmS1.Visible = true
+                end)
+            else
+                -- Invalid format, delete it
+                delfile("OceanHubKey.txt")
+            end
+        end
+    end)
+end)

@@ -119,49 +119,42 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- ═══ UI ═══
-local FarmTab = Window:MakeTab({
-    Name = "Auto Farm",
-    Icon = "rbxassetid://6031763426"
-})
+local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
+InfoTab:AddLabel({ Text = "Tier: Premium" })
+InfoTab:AddLabel({ Text = "Status Key: unlimited" })
+InfoTab:AddLabel({ Text = "Script: Sell Lemons" })
 
-FarmTab:AddToggle({
-    Name = "Auto Button Press",
-    Default = false,
-    Callback = function(val) Settings.AutoButton = val end
-})
+local FarmTab = Window:MakeTab({ Name = "Auto Farm", Icon = "rbxassetid://6031763426" })
+FarmTab:AddToggle({ Name = "Auto Button Press", Keybind = "F", Default = false, Callback = function(val) Settings.AutoButton = val end })
+FarmTab:AddToggle({ Name = "Auto Collect Items", Keybind = "C", Default = false, Callback = function(val) Settings.AutoCollect = val end })
+FarmTab:AddSlider({ Name = "Button Range", Min = 5, Max = 80, Default = 15, Callback = function(val) Settings.ButtonRange = val end })
 
-FarmTab:AddToggle({
-    Name = "Auto Collect Items",
-    Default = false,
-    Callback = function(val) Settings.AutoCollect = val end
-})
+local MiscTab = Window:MakeTab({ Name = "misc", Icon = "rbxassetid://6031068426" })
+MiscTab:AddSlider({ Name = "WalkSpeed", Min = 16, Max = 150, Default = 16, Callback = function(val)
+    Settings.Speed = val
+    local char = LP.Character
+    if char and char:FindFirstChild("Humanoid") then char.Humanoid.WalkSpeed = val end
+end })
+MiscTab:AddSlider({ Name = "JumpPower", Min = 50, Max = 300, Default = 50, Callback = function(val)
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.JumpPower = val end
+end })
 
-FarmTab:AddSlider({
-    Name = "Button Range",
-    Min = 5,
-    Max = 80,
-    Default = 15,
-    Callback = function(val) Settings.ButtonRange = val end
-})
-
-local MiscTab = Window:MakeTab({
-    Name = "Misc",
-    Icon = "rbxassetid://6031068426"
-})
-
-MiscTab:AddSlider({
-    Name = "WalkSpeed",
-    Min = 16,
-    Max = 150,
-    Default = 16,
-    Callback = function(val)
-        Settings.Speed = val
-        local char = LP.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.WalkSpeed = val
+local PremiumTab = Window:MakeTab({ Name = ".", Icon = "rbxassetid://6031068428" })
+PremiumTab:AddToggle({ Name = "Light (Corner Glow)", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then
+        for _, g in ipairs(sg:GetDescendants()) do
+            if g.Name == "SuperThickCornerGlow" or g.Name == "Glow" then g.Visible = val end
         end
     end
-})
+end })
+PremiumTab:AddToggle({ Name = "Background Effects", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then
+        local w = sg:FindFirstChild("Wrapper")
+        if w then w.BackgroundTransparency = val and 0 or 1 end
+    end
+end })
 
 OceanLibrary:Notify({
     Title = "OceanHub VIP",

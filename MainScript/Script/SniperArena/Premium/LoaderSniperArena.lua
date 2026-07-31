@@ -21,7 +21,7 @@ local Aim = {
     FOV = 150,
     Smoothness = 6,
     TargetPart = "Head",
-    TeamCheck = true,
+    WallCheck = false,
     LockedTarget = nil,
 }
 
@@ -36,18 +36,34 @@ local function isAlive(p)
 end
 
 local function isTeammate(p)
-    if not Aim.TeamCheck then return false end
     return LP.Team and p.Team and LP.Team == p.Team
+end
+
+local function getPartName()
+    if Aim.TargetPart == "Body" then return "HumanoidRootPart" end
+    if Aim.TargetPart == "Leg" then return "LeftFoot" end
+    return "Head"
+end
+
+local function isVisible(pos)
+    if not Aim.WallCheck then return true end
+    local char = LP.Character
+    if not char or not char:FindFirstChild("Head") then return false end
+    local params = RaycastParams.new()
+    params.FilterDescendantsInstances = {char}
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    local result = workspace:Raycast(char.Head.Position, pos - char.Head.Position, params)
+    return result == nil
 end
 
 local function getTarget()
     local closest, shortDist = nil, Aim.FOV
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LP and isAlive(p) and not isTeammate(p) then
-            local part = p.Character:FindFirstChild(Aim.TargetPart)
+            local part = p.Character:FindFirstChild(getPartName())
             if part then
                 local sp, vis = Camera:WorldToViewportPoint(part.Position)
-                if vis then
+                if vis and isVisible(part.Position) then
                     local d = (Vector2.new(sp.X, sp.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
                     if d < shortDist then shortDist = d; closest = p end
                 end
@@ -60,12 +76,11 @@ end
 RunService.RenderStepped:Connect(function()
     if not Aim.Enabled then Aim.LockedTarget = nil; return end
 
-    -- Keep locked target
     if Aim.LockedTarget and isAlive(Aim.LockedTarget) and not isTeammate(Aim.LockedTarget) then
-        local part = Aim.LockedTarget.Character:FindFirstChild(Aim.TargetPart)
+        local part = Aim.LockedTarget.Character:FindFirstChild(getPartName())
         if part then
             local _, vis = Camera:WorldToViewportPoint(part.Position)
-            if vis then
+            if vis and isVisible(part.Position) then
                 local alpha = 1 / math.max(Aim.Smoothness, 1)
                 Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, part.Position), alpha)
                 return
@@ -77,7 +92,7 @@ RunService.RenderStepped:Connect(function()
     local t = getTarget()
     if t then
         Aim.LockedTarget = t
-        local part = t.Character:FindFirstChild(Aim.TargetPart)
+        local part = t.Character:FindFirstChild(getPartName())
         if part then
             local alpha = 1 / math.max(Aim.Smoothness, 1)
             Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, part.Position), alpha)
@@ -114,28 +129,33 @@ Players.PlayerAdded:Connect(function(p) if ESPEnabled then createESP(p) end end)
 Players.PlayerRemoving:Connect(function(p) if espObjects[p] then espObjects[p]:Destroy(); espObjects[p] = nil end end)
 
 -- ═══ UI ═══
+local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
+InfoTab:AddLabel({ Text = "Tier: Premium" })
+InfoTab:AddLabel({ Text = "Status Key: unlimited" })
+InfoTab:AddLabel({ Text = "Script: Sniper Arena" })
+
 local CombatTab = Window:MakeTab({ Name = "Combat", Icon = "rbxassetid://6031763426" })
-
-CombatTab:AddToggle({ Name = "Aimbot (Smooth)", Default = false,
+CombatTab:AddToggle({ Name = "Aimbot (Smooth)", Keybind = "E", Default = false,
     Callback = function(v) Aim.Enabled = v; if not v then Aim.LockedTarget = nil end end })
-
-CombatTab:AddSlider({ Name = "Smoothness", Min = 1, Max = 20, Default = 6,
-    Callback = function(v) Aim.Smoothness = v end })
-
-CombatTab:AddSlider({ Name = "FOV Radius", Min = 30, Max = 500, Default = 150,
-    Callback = function(v) Aim.FOV = v end })
-
-CombatTab:AddDropdown({ Name = "Target Part", Options = {"Head", "HumanoidRootPart", "UpperTorso"}, Default = "Head",
+CombatTab:AddToggle({ Name = "Wallcheck", Keybind = "C", Default = false, Callback = function(v) Aim.WallCheck = v end })
+CombatTab:AddDropdown({ Name = "Target Part", Options = {"Head", "Body", "Leg"}, Default = "Head",
     Callback = function(v) Aim.TargetPart = v end })
 
 local VisualTab = Window:MakeTab({ Name = "Visuals", Icon = "rbxassetid://6031068452" })
+VisualTab:AddToggle({ Name = "ESP Highlight", Keybind = "P", Default = false, Callback = function(v) toggleESP(v) end })
 
-VisualTab:AddToggle({ Name = "ESP Highlight", Default = false,
-    Callback = function(v) toggleESP(v) end })
-
-local MiscTab = Window:MakeTab({ Name = "Misc", Icon = "rbxassetid://6031068426" })
-
+local MiscTab = Window:MakeTab({ Name = "misc", Icon = "rbxassetid://6031068426" })
 MiscTab:AddSlider({ Name = "WalkSpeed", Min = 16, Max = 120, Default = 16,
     Callback = function(v) local c = LP.Character; if c and c:FindFirstChild("Humanoid") then c.Humanoid.WalkSpeed = v end end })
+
+local PremiumTab = Window:MakeTab({ Name = ".", Icon = "rbxassetid://6031068428" })
+PremiumTab:AddToggle({ Name = "Light (Corner Glow)", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then for _, g in ipairs(sg:GetDescendants()) do if g.Name == "SuperThickCornerGlow" or g.Name == "Glow" then g.Visible = val end end end
+end })
+PremiumTab:AddToggle({ Name = "Background Effects", Default = true, Callback = function(val)
+    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    if sg then local w = sg:FindFirstChild("Wrapper"); if w then w.BackgroundTransparency = val and 0 or 1 end end
+end })
 
 OceanLibrary:Notify({ Title = "OceanHub VIP", Content = "Sniper Arena Premium loaded!", Duration = 5 })
