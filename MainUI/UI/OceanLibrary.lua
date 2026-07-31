@@ -667,19 +667,28 @@ function OceanLib:CreateWindow(options)
     elseif syn and syn.protect_gui then syn.protect_gui(sg); sg.Parent = CoreGui
     else sg.Parent = CoreGui end
 
-    -- ══ MAIN FRAME ══
+    -- ══ OUTER WRAPPER (no clip - holds corner glows) ══
+    local wrapper = Instance.new("Frame")
+    wrapper.Name = "Wrapper"; wrapper.Size = UDim2.new(0, 550, 0, 370)
+    wrapper.Position = UDim2.new(0.5, -275, 0.5, -185)
+    wrapper.BackgroundTransparency = 1; wrapper.BorderSizePixel = 0
+    wrapper.Parent = sg
+
+    makeDraggable(wrapper)
+
+    -- Corner glow lights (on wrapper, NOT clipped)
+    addCornerGlows(wrapper, UDim2.new(0, 240, 0, 240), 0.02)
+
+    -- ══ MAIN FRAME (clips content) ══
     local main = Instance.new("Frame")
-    main.Name = "Main"; main.Size = UDim2.new(0, 550, 0, 370)
-    main.Position = UDim2.new(0.5, -275, 0.5, -185)
+    main.Name = "Main"; main.Size = UDim2.new(1, 0, 1, 0)
     main.BackgroundColor3 = P.Bg2; main.BorderSizePixel = 0
-    main.ClipsDescendants = true; main.Parent = sg
+    main.ClipsDescendants = true; main.Parent = wrapper
 
     Instance.new("UICorner", main).CornerRadius = UDim.new(0, 14)
-    local ms = Instance.new("UIStroke", main); ms.Color = P.Border2; ms.Thickness = 1.5; ms.Transparency = 0.1
+    local ms = Instance.new("UIStroke", main); ms.Color = P.Border2; ms.Thickness = 2; ms.Transparency = 0
 
-    addCornerGlows(main, UDim2.new(0, 200, 0, 200), 0.04)
     addTopGlow(main)
-    makeDraggable(main)
 
     -- ══ MINI ICON (Minimized State) ══
     local mini = Instance.new("Frame")
@@ -712,9 +721,9 @@ function OceanLib:CreateWindow(options)
         tw(miniS, {Transparency = 0.2, Color = P.Cyan})
     end)
     miniBtn.MouseButton1Click:Connect(function()
-        mini.Visible = false; main.Visible = true
-        main.Size = UDim2.new(0, 0, 0, 0)
-        tw(main, {Size = UDim2.new(0, 550, 0, 370)}, TI.Bounce)
+        mini.Visible = false; wrapper.Visible = true
+        wrapper.Size = UDim2.new(0, 0, 0, 0)
+        tw(wrapper, {Size = UDim2.new(0, 550, 0, 370)}, TI.Bounce)
     end)
 
     -- ══ HEADER BAR ══
@@ -779,9 +788,9 @@ function OceanLib:CreateWindow(options)
         tw(minBtnS, {Color = P.Border1, Transparency = 0.4})
     end)
     minBtn.MouseButton1Click:Connect(function()
-        tw(main, {Size = UDim2.new(0, 0, 0, 0)}, TI.Med)
+        tw(wrapper, {Size = UDim2.new(0, 0, 0, 0)}, TI.Med)
         task.delay(0.3, function()
-            main.Visible = false; mini.Visible = true
+            wrapper.Visible = false; mini.Visible = true
             mini.Size = UDim2.new(0, 0, 0, 0)
             tw(mini, {Size = UDim2.new(0, 46, 0, 46)}, TI.Bounce)
         end)
