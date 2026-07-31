@@ -45,19 +45,31 @@ local CONFIG = {
     InfoActiveText = Color3.fromRGB(185, 195, 215),
 }
 
--- Point Arsenal & Rivals to our OceanHub Free and Premium script folders!
+-- All game scripts organized by tier (Free / Freemium / Premium)
 local SCRIPTS = {
     free = {
         ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/Free/LoaderArsenal.lua"))()',
         ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/Free/LoaderRivals.lua"))()',
+        ["Sell Lemons"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SellLemons/Free/LoaderSellLemons.lua"))()',
+        ["Sniper Arena"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SniperArena/Free/LoaderSniperArena.lua"))()',
+        ["Blade Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/BladeBall/Free/LoaderBladeBall.lua"))()',
+        ["Phantom Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/PhantomBall/Free/LoaderPhantomBall.lua"))()',
     },
     freemium = {
         ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/Premium/LoaderArsenal.lua"))()',
         ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/Premium/LoaderRivals.lua"))()',
+        ["Sell Lemons"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SellLemons/Premium/LoaderSellLemons.lua"))()',
+        ["Sniper Arena"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SniperArena/Premium/LoaderSniperArena.lua"))()',
+        ["Blade Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/BladeBall/Premium/LoaderBladeBall.lua"))()',
+        ["Phantom Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/PhantomBall/Premium/LoaderPhantomBall.lua"))()',
     },
     premium = {
         ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/Premium/LoaderArsenal.lua"))()',
         ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/Premium/LoaderRivals.lua"))()',
+        ["Sell Lemons"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SellLemons/Premium/LoaderSellLemons.lua"))()',
+        ["Sniper Arena"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SniperArena/Premium/LoaderSniperArena.lua"))()',
+        ["Blade Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/BladeBall/Premium/LoaderBladeBall.lua"))()',
+        ["Phantom Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/PhantomBall/Premium/LoaderPhantomBall.lua"))()',
     }
 }
 
@@ -355,7 +367,7 @@ fS2.ZIndex = 3
 fConfirmBtn.MouseButton1Click:Connect(function()
     fS1.Visible = false
     fS2.Visible = true
-    createGameList(fS2, "free", {"Arsenal", "Rivals"}, function()
+    createGameList(fS2, "free", {"Arsenal", "Rivals", "Sell Lemons", "Sniper Arena", "Blade Ball", "Phantom Ball"}, function()
         fS2.Visible = false
         fS1.Visible = true
     end)
@@ -463,7 +475,7 @@ fmBtn.MouseButton1Click:Connect(function()
     if fmKeyIn.Text ~= "" and string.sub(string.lower(fmKeyIn.Text), 1, 6) == "ocean-" then
         fmS1.Visible = false
         fmS2.Visible = true
-        createGameList(fmS2, "freemium", {"Arsenal", "Rivals"}, function()
+        createGameList(fmS2, "freemium", {"Arsenal", "Rivals", "Sell Lemons", "Sniper Arena", "Blade Ball", "Phantom Ball"}, function()
             fmS2.Visible = false
             fmS1.Visible = true
         end)
@@ -531,7 +543,7 @@ pBtn.MouseButton1Click:Connect(function()
     if pKeyIn.Text ~= "" and string.sub(string.lower(pKeyIn.Text), 1, 6) == "ocean-" then
         pS1.Visible = false
         pS2.Visible = true
-        createGameList(pS2, "premium", {"Arsenal", "Rivals"}, function()
+        createGameList(pS2, "premium", {"Arsenal", "Rivals", "Sell Lemons", "Sniper Arena", "Blade Ball", "Phantom Ball"}, function()
             pS2.Visible = false
             pS1.Visible = true
         end)
