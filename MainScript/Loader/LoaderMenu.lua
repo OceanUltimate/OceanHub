@@ -45,25 +45,19 @@ local CONFIG = {
     InfoActiveText = Color3.fromRGB(185, 195, 215),
 }
 
--- Point Arsenal & Rivals to our OceanHub script folders!
+-- Point Arsenal & Rivals to our OceanHub Free and Premium script folders!
 local SCRIPTS = {
     free = {
-        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
-        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
-        ["Blox Fruits"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/bloxfruits-free/main/loader.lua"))()',
-        ["Pet Simulator X"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/petsimx-free/main/loader.lua"))()',
+        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/Free/LoaderArsenal.lua"))()',
+        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/Free/LoaderRivals.lua"))()',
     },
     freemium = {
-        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
-        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
-        ["Blox Fruits"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/bloxfruits-freemium/main/loader.lua"))()',
-        ["Da Hood"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/dahood-freemium/main/loader.lua"))()',
+        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/Premium/LoaderArsenal.lua"))()',
+        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/Premium/LoaderRivals.lua"))()',
     },
     premium = {
-        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/LoaderArsenal.lua"))()',
-        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/LoaderRivals.lua"))()',
-        ["Blox Fruits"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/bloxfruits-premium/main/loader.lua"))()',
-        ["Doors"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanScript/doors-premium/main/loader.lua"))()',
+        ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/Premium/LoaderArsenal.lua"))()',
+        ["Rivals"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Rivals/Premium/LoaderRivals.lua"))()',
     }
 }
 
@@ -361,7 +355,7 @@ fS2.ZIndex = 3
 fConfirmBtn.MouseButton1Click:Connect(function()
     fS1.Visible = false
     fS2.Visible = true
-    createGameList(fS2, "free", {"Arsenal", "Rivals", "Blox Fruits", "Pet Simulator X"}, function()
+    createGameList(fS2, "free", {"Arsenal", "Rivals"}, function()
         fS2.Visible = false
         fS1.Visible = true
     end)
@@ -469,7 +463,7 @@ fmBtn.MouseButton1Click:Connect(function()
     if fmKeyIn.Text ~= "" and string.sub(string.lower(fmKeyIn.Text), 1, 6) == "ocean-" then
         fmS1.Visible = false
         fmS2.Visible = true
-        createGameList(fmS2, "freemium", {"Arsenal", "Rivals", "Blox Fruits", "Da Hood"}, function()
+        createGameList(fmS2, "freemium", {"Arsenal", "Rivals"}, function()
             fmS2.Visible = false
             fmS1.Visible = true
         end)
@@ -537,7 +531,7 @@ pBtn.MouseButton1Click:Connect(function()
     if pKeyIn.Text ~= "" and string.sub(string.lower(pKeyIn.Text), 1, 6) == "ocean-" then
         pS1.Visible = false
         pS2.Visible = true
-        createGameList(pS2, "premium", {"Arsenal", "Rivals", "Blox Fruits", "Doors"}, function()
+        createGameList(pS2, "premium", {"Arsenal", "Rivals"}, function()
             pS2.Visible = false
             pS1.Visible = true
         end)

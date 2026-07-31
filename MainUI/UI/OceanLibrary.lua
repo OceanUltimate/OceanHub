@@ -96,12 +96,13 @@ local function addGlow(parent, pos, color, size, trans)
 end
 
 local function addCornerGlows(parent, sz, tr)
-    sz = sz or UDim2.new(0, 200, 0, 200)
-    tr = tr or 0.04
-    addGlow(parent, UDim2.new(0, -55, 0, -55), P.GlowCyan, sz, tr)
-    addGlow(parent, UDim2.new(1, -145, 0, -55), P.GlowPurple, sz, tr)
-    addGlow(parent, UDim2.new(0, -55, 1, -145), P.GlowGreen, sz, tr)
-    addGlow(parent, UDim2.new(1, -145, 1, -145), P.GlowAmber, sz, tr)
+    sz = sz or UDim2.new(0, 240, 0, 240)
+    tr = tr or 0.03
+    local offset = math.floor(sz.X.Offset * 0.35)
+    addGlow(parent, UDim2.new(0, -offset, 0, -offset), P.GlowCyan, sz, tr)
+    addGlow(parent, UDim2.new(1, -sz.X.Offset + offset, 0, -offset), P.GlowPurple, sz, tr)
+    addGlow(parent, UDim2.new(0, -offset, 1, -sz.Y.Offset + offset), P.GlowGreen, sz, tr)
+    addGlow(parent, UDim2.new(1, -sz.X.Offset + offset, 1, -sz.Y.Offset + offset), P.GlowAmber, sz, tr)
 end
 
 local function addTopGlow(parent)
