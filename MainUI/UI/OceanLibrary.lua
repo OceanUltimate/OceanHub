@@ -734,13 +734,12 @@ function OceanLib:CreateWindow(options)
     headerBar.BorderSizePixel = 0; headerBar.ZIndex = 3
     Instance.new("UICorner", headerBar).CornerRadius = UDim.new(0, 14)
 
-    -- Header bottom gradient line
+    -- Header bottom gradient line (full width, connected to edges)
     local headerLine = Instance.new("Frame", main)
-    headerLine.Size = UDim2.new(1, -20, 0, 2)
-    headerLine.Position = UDim2.new(0, 10, 0, 52)
-    headerLine.BackgroundColor3 = P.Cyan; headerLine.BackgroundTransparency = 0.6
+    headerLine.Size = UDim2.new(1, 0, 0, 1)
+    headerLine.Position = UDim2.new(0, 0, 0, 52)
+    headerLine.BackgroundColor3 = P.Border2; headerLine.BackgroundTransparency = 0
     headerLine.BorderSizePixel = 0; headerLine.ZIndex = 4
-    Instance.new("UICorner", headerLine).CornerRadius = UDim.new(0, 1)
 
     -- Glow under header line
     addGlow(main, UDim2.new(0.5, -100, 0, 35), P.GlowCyan, UDim2.new(0, 200, 0, 30), 0.7)
@@ -831,11 +830,11 @@ function OceanLib:CreateWindow(options)
     local tabLayout = Instance.new("UIListLayout", sidebar)
     tabLayout.SortOrder = Enum.SortOrder.LayoutOrder; tabLayout.Padding = UDim.new(0, 4)
 
-    -- Tab/Content separator
+    -- Tab/Content separator (matches header line color)
     local sepLine = Instance.new("Frame", main)
-    sepLine.Size = UDim2.new(0, 1, 1, -68)
-    sepLine.Position = UDim2.new(0, 142, 0, 60)
-    sepLine.BackgroundColor3 = P.Border1; sepLine.BackgroundTransparency = 0.4
+    sepLine.Size = UDim2.new(0, 1, 1, -53)
+    sepLine.Position = UDim2.new(0, 142, 0, 53)
+    sepLine.BackgroundColor3 = P.Border2; sepLine.BackgroundTransparency = 0
     sepLine.BorderSizePixel = 0; sepLine.ZIndex = 3
 
     -- ══ CONTENT AREA ══
