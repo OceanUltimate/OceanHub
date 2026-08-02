@@ -80,9 +80,15 @@ startAutoButton()
 
 -- ═══ UI ═══
 local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
-InfoTab:AddLabel({ Text = "Tier: Free" })
-InfoTab:AddLabel({ Text = "Status Key: Free" })
-InfoTab:AddLabel({ Text = "Script: Sell Lemons" })
+
+local welcomeCard = InfoTab:AddCard({ Title = "Selamat Datang", Icon = "⌂" })
+welcomeCard:AddBanner({ Text = "Kamu menggunakan OceanHub Free Edition.", Icon = "✦" })
+welcomeCard:AddKeyVal({ Key = "Game Terdeteksi", Value = "Sell Lemons", Color = Color3.fromRGB(56, 189, 248) })
+welcomeCard:AddKeyVal({ Key = "PlaceId", Value = tostring(game.PlaceId), Color = Color3.fromRGB(148, 180, 216) })
+
+local statusCard = InfoTab:AddCard({ Title = "Status Hub", Icon = "⚙" })
+statusCard:AddKeyVal({ Key = "Tier", Value = "Free", Color = Color3.fromRGB(56, 189, 248) })
+statusCard:AddKeyVal({ Key = "Status Key", Value = "Free", Color = Color3.fromRGB(56, 189, 248) })
 
 local MainTab = Window:MakeTab({ Name = "Auto Farm", Icon = "rbxassetid://6031763426" })
 MainTab:AddToggle({ Name = "Auto Button Press", Keybind = "F", Default = false, Callback = function(val)

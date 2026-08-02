@@ -1006,7 +1006,7 @@ function OceanLib:CreateWindow(options)
     -- Logo Box
     local logoBox = Instance.new("Frame", headerBar)
     logoBox.Size = UDim2.new(0, 32, 0, 32); logoBox.Position = UDim2.new(0, 12, 0, 10)
-    logoBox.BackgroundColor3 = P.Purple; logoBox.ZIndex = 4
+    logoBox.BackgroundColor3 = P.CyanDark; logoBox.ZIndex = 4
     Instance.new("UICorner", logoBox).CornerRadius = UDim.new(0, 8)
     local logoBoxS = Instance.new("UIStroke", logoBox); logoBoxS.Color = P.Cyan; logoBoxS.Transparency = 0.4
 
@@ -1015,29 +1015,27 @@ function OceanLib:CreateWindow(options)
     logoImg.Image = iconId; logoImg.ScaleType = Enum.ScaleType.Fit; logoImg.ZIndex = 5
     Instance.new("UICorner", logoImg).CornerRadius = UDim.new(0, 8)
 
+    -- Header Title Container (Dynamic layout - No overlap!)
+    local titleWrap = Instance.new("Frame", headerBar)
+    titleWrap.Size = UDim2.new(1, -120, 1, 0); titleWrap.Position = UDim2.new(0, 52, 0, 0)
+    titleWrap.BackgroundTransparency = 1; titleWrap.ZIndex = 4
+
+    local titleList = Instance.new("UIListLayout", titleWrap)
+    titleList.FillDirection = Enum.FillDirection.Horizontal
+    titleList.VerticalAlignment = Enum.VerticalAlignment.Center
+    titleList.SortOrder = Enum.SortOrder.LayoutOrder
+    titleList.Padding = UDim.new(0, 8)
+
     -- Title
-    local titleLbl = Instance.new("TextLabel", headerBar)
-    titleLbl.Size = UDim2.new(0, 0, 0, 20); titleLbl.Position = UDim2.new(0, 52, 0, 16)
-    titleLbl.AutomaticSize = Enum.AutomaticSize.X
+    local titleLbl = Instance.new("TextLabel", titleWrap)
+    titleLbl.Size = UDim2.new(0, 0, 0, 20); titleLbl.AutomaticSize = Enum.AutomaticSize.X
     titleLbl.BackgroundTransparency = 1; titleLbl.Text = windowTitle
     titleLbl.TextColor3 = P.White; titleLbl.TextSize = 15
     titleLbl.Font = Enum.Font.GothamBold; titleLbl.TextXAlignment = Enum.TextXAlignment.Left; titleLbl.ZIndex = 4
 
-    -- Sub-badge (+ PREMIUM)
-    local badge = Instance.new("Frame", headerBar)
-    badge.Size = UDim2.new(0, 75, 0, 20); badge.Position = UDim2.new(0, 185, 0, 16)
-    badge.BackgroundColor3 = P.Purple; badge.BackgroundTransparency = 0.8; badge.ZIndex = 4
-    Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 10)
-    local badgeS = Instance.new("UIStroke", badge); badgeS.Color = P.Purple; badgeS.Transparency = 0.3
-
-    local badgeTxt = Instance.new("TextLabel", badge)
-    badgeTxt.Size = UDim2.new(1, 0, 1, 0); badgeTxt.BackgroundTransparency = 1
-    badgeTxt.Text = "✦ PREMIUM"; badgeTxt.TextColor3 = P.Purple
-    badgeTxt.TextSize = 9; badgeTxt.Font = Enum.Font.GothamBold; badgeTxt.ZIndex = 5
-
     -- Version tag
-    local verLbl = Instance.new("TextLabel", headerBar)
-    verLbl.Size = UDim2.new(0, 50, 0, 20); verLbl.Position = UDim2.new(0, 268, 0, 16)
+    local verLbl = Instance.new("TextLabel", titleWrap)
+    verLbl.Size = UDim2.new(0, 0, 0, 20); verLbl.AutomaticSize = Enum.AutomaticSize.X
     verLbl.BackgroundTransparency = 1; verLbl.Text = "v1.0.0"
     verLbl.TextColor3 = P.TextMut; verLbl.TextSize = 11
     verLbl.Font = Enum.Font.Gotham; verLbl.TextXAlignment = Enum.TextXAlignment.Left; verLbl.ZIndex = 4
@@ -1095,32 +1093,32 @@ function OceanLib:CreateWindow(options)
     Instance.new("UICorner", pCard).CornerRadius = UDim.new(0, 8)
     local pCardS = Instance.new("UIStroke", pCard); pCardS.Color = P.Border1; pCardS.Transparency = 0.5
 
-    -- Avatar Circle
-    local pAvatar = Instance.new("Frame", pCard)
-    pAvatar.Size = UDim2.new(0, 26, 0, 26); pAvatar.Position = UDim2.new(0, 6, 0.5, -13)
-    pAvatar.BackgroundColor3 = P.Purple; pAvatar.ZIndex = 5
+    -- Roblox Player Avatar Headshot Image
+    local pAvatar = Instance.new("ImageLabel", pCard)
+    pAvatar.Size = UDim2.new(0, 28, 0, 28); pAvatar.Position = UDim2.new(0, 6, 0.5, -14)
+    pAvatar.BackgroundColor3 = P.Bg4; pAvatar.ZIndex = 5
+    pAvatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. (Players.LocalPlayer and Players.LocalPlayer.UserId or 1) .. "&x=150&y=150"
+    pAvatar.ScaleType = Enum.ScaleType.Fit
     Instance.new("UICorner", pAvatar).CornerRadius = UDim.new(1, 0)
+    local pAvatarS = Instance.new("UIStroke", pAvatar); pAvatarS.Color = P.Cyan; pAvatarS.Transparency = 0.4
 
     local localPlayerName = (Players.LocalPlayer and Players.LocalPlayer.Name) or "User"
-    local initialChar = string.sub(localPlayerName, 1, 1):upper()
-
-    local pAvatarTxt = Instance.new("TextLabel", pAvatar)
-    pAvatarTxt.Size = UDim2.new(1, 0, 1, 0); pAvatarTxt.BackgroundTransparency = 1
-    pAvatarTxt.Text = initialChar; pAvatarTxt.TextColor3 = P.White
-    pAvatarTxt.TextSize = 13; pAvatarTxt.Font = Enum.Font.GothamBold; pAvatarTxt.ZIndex = 6
 
     -- Name
     local pName = Instance.new("TextLabel", pCard)
-    pName.Size = UDim2.new(1, -40, 0, 16); pName.Position = UDim2.new(0, 36, 0, 5)
+    pName.Size = UDim2.new(1, -42, 0, 16); pName.Position = UDim2.new(0, 38, 0, 5)
     pName.BackgroundTransparency = 1; pName.Text = localPlayerName
     pName.TextColor3 = P.White; pName.TextSize = 11; pName.TextTruncate = Enum.TextTruncate.AtEnd
     pName.Font = Enum.Font.GothamBold; pName.TextXAlignment = Enum.TextXAlignment.Left; pName.ZIndex = 5
 
-    -- Status dot
+    -- Status dot (Dynamic Free / Premium)
+    local isFree = string.find(string.lower(windowTitle), "free") ~= nil
     local pStatus = Instance.new("TextLabel", pCard)
-    pStatus.Size = UDim2.new(1, -40, 0, 14); pStatus.Position = UDim2.new(0, 36, 0, 21)
-    pStatus.BackgroundTransparency = 1; pStatus.Text = "● Premium"
-    pStatus.TextColor3 = P.Green; pStatus.TextSize = 9
+    pStatus.Size = UDim2.new(1, -42, 0, 14); pStatus.Position = UDim2.new(0, 38, 0, 21)
+    pStatus.BackgroundTransparency = 1
+    pStatus.Text = isFree and "● Free" or "● Premium"
+    pStatus.TextColor3 = isFree and P.Cyan or P.Green
+    pStatus.TextSize = 9
     pStatus.Font = Enum.Font.GothamMedium; pStatus.TextXAlignment = Enum.TextXAlignment.Left; pStatus.ZIndex = 5
 
     -- Tab Container Frame inside Sidebar
