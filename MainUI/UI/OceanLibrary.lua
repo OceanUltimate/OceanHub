@@ -14,46 +14,46 @@ local RS = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 -- ═══════════════════════════════════════════════════
--- COLOR PALETTE - Midnight Ocean Premium
+-- COLOR PALETTE - Ocean Blue Theme (Matching Loader)
 -- ═══════════════════════════════════════════════════
 local P = {
-    -- Backgrounds (layered depth - BorcaScriptHub Theme)
-    Bg1 = Color3.fromRGB(13, 13, 18),       -- #0d0d12 deepest base
-    Bg2 = Color3.fromRGB(19, 19, 26),      -- #13131a main window panel
-    Bg3 = Color3.fromRGB(26, 26, 36),     -- #1a1a24 surface / cards
-    Bg4 = Color3.fromRGB(31, 31, 46),     -- #1f1f2e hover / elevated
-    Bg5 = Color3.fromRGB(34, 34, 58),     -- #22223a active
+    -- Backgrounds (Ocean Blue depth layers)
+    Bg1 = Color3.fromRGB(4, 12, 36),       -- deepest ocean
+    Bg2 = Color3.fromRGB(6, 18, 48),       -- main window (matches Loader)
+    Bg3 = Color3.fromRGB(8, 28, 65),       -- cards/surface
+    Bg4 = Color3.fromRGB(12, 40, 85),      -- hover/elevated
+    Bg5 = Color3.fromRGB(16, 52, 100),     -- active
 
     -- Accent
-    Purple = Color3.fromRGB(139, 92, 246),     -- #8b5cf6 accent violet
-    PurpleDark = Color3.fromRGB(109, 63, 214), -- #6d3fd6
-    PurpleLight = Color3.fromRGB(167, 139, 250),-- #a78bfa
+    Purple = Color3.fromRGB(139, 92, 246),
+    PurpleDark = Color3.fromRGB(109, 63, 214),
+    PurpleLight = Color3.fromRGB(167, 139, 250),
     Cyan = Color3.fromRGB(56, 189, 248),
     CyanDark = Color3.fromRGB(14, 116, 178),
     CyanBright = Color3.fromRGB(125, 220, 255),
-    Blue = Color3.fromRGB(96, 165, 250),       -- #60a5fa
-    Green = Color3.fromRGB(52, 211, 153),      -- #34d399
+    Blue = Color3.fromRGB(38, 140, 215),       -- matches Loader border
+    Green = Color3.fromRGB(52, 211, 153),
     GreenDark = Color3.fromRGB(16, 120, 60),
-    Red = Color3.fromRGB(248, 113, 113),       -- #f87171
-    Yellow = Color3.fromRGB(251, 191, 36),     -- #fbbf24
+    Red = Color3.fromRGB(239, 68, 68),
+    Yellow = Color3.fromRGB(250, 204, 21),
     Orange = Color3.fromRGB(249, 115, 22),
 
     -- Text
-    White = Color3.fromRGB(241, 240, 255),     -- #f1f0ff
-    TextPri = Color3.fromRGB(241, 240, 255),   -- #f1f0ff
-    TextSec = Color3.fromRGB(176, 174, 200),   -- #b0aec8
-    TextMut = Color3.fromRGB(107, 105, 135),   -- #6b6987
-    TextDim = Color3.fromRGB(80, 78, 105),
+    White = Color3.fromRGB(248, 250, 252),
+    TextPri = Color3.fromRGB(226, 236, 248),
+    TextSec = Color3.fromRGB(150, 200, 255),
+    TextMut = Color3.fromRGB(90, 140, 200),
+    TextDim = Color3.fromRGB(50, 90, 140),
 
     -- Borders
-    Border1 = Color3.fromRGB(35, 35, 50),
-    Border2 = Color3.fromRGB(50, 45, 75),
-    Border3 = Color3.fromRGB(139, 92, 246),    -- Accent border
-    BorderGlow = Color3.fromRGB(139, 92, 246),
+    Border1 = Color3.fromRGB(18, 50, 100),
+    Border2 = Color3.fromRGB(25, 65, 125),
+    Border3 = Color3.fromRGB(38, 140, 215),
+    BorderGlow = Color3.fromRGB(56, 189, 248),
 
     -- Glow
     GlowCyan = Color3.fromRGB(56, 189, 248),
-    GlowPurple = Color3.fromRGB(139, 92, 246),
+    GlowPurple = Color3.fromRGB(129, 92, 248),
     GlowGreen = Color3.fromRGB(52, 211, 153),
     GlowAmber = Color3.fromRGB(251, 191, 36),
 
@@ -762,29 +762,21 @@ local function AddTextbox(parent, opts)
     return f
 end
 
--- ──────── LABEL / SECTION HEADER ────────
+-- ──────── LABEL / PLAIN TEXT ────────
 local function AddLabel(parent, opts)
     opts = opts or {}
     local text = opts.Text or "Section"
 
-    local wrap = Instance.new("Frame", parent)
-    wrap.Size = UDim2.new(1, -4, 0, 24)
-    wrap.BackgroundTransparency = 1; wrap.ZIndex = 5
-
-    local line = Instance.new("Frame", wrap)
-    line.Size = UDim2.new(1, 0, 0, 1)
-    line.Position = UDim2.new(0, 0, 0.5, 0)
-    line.BackgroundColor3 = P.Border1; line.BackgroundTransparency = 0.5
-    line.BorderSizePixel = 0; line.ZIndex = 5
-
-    local lbl = Instance.new("TextLabel", wrap)
-    lbl.Size = UDim2.new(0, 0, 1, 0); lbl.Position = UDim2.new(0, 6, 0, 0)
-    lbl.AutomaticSize = Enum.AutomaticSize.X
-    lbl.BackgroundColor3 = P.Bg2; lbl.BackgroundTransparency = 0
-    lbl.Text = "  " .. text .. "  "
-    lbl.TextColor3 = P.TextMut; lbl.TextSize = 10
-    lbl.Font = Enum.Font.GothamBold; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.ZIndex = 6
-    return wrap
+    local lbl = Instance.new("TextLabel", parent)
+    lbl.Size = UDim2.new(1, -4, 0, 22)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.TextColor3 = P.TextSec; lbl.TextSize = 12
+    lbl.Font = Enum.Font.GothamMedium
+    lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.ZIndex = 6
+    local pad = Instance.new("UIPadding", lbl)
+    pad.PaddingLeft = UDim.new(0, 8)
+    return lbl
 end
 
 -- ──────── BANNER CARD ────────
@@ -1015,30 +1007,20 @@ function OceanLib:CreateWindow(options)
     logoImg.Image = iconId; logoImg.ScaleType = Enum.ScaleType.Fit; logoImg.ZIndex = 5
     Instance.new("UICorner", logoImg).CornerRadius = UDim.new(0, 8)
 
-    -- Header Title Container (Dynamic layout - No overlap!)
-    local titleWrap = Instance.new("Frame", headerBar)
-    titleWrap.Size = UDim2.new(1, -120, 1, 0); titleWrap.Position = UDim2.new(0, 52, 0, 0)
-    titleWrap.BackgroundTransparency = 1; titleWrap.ZIndex = 4
-
-    local titleList = Instance.new("UIListLayout", titleWrap)
-    titleList.FillDirection = Enum.FillDirection.Horizontal
-    titleList.VerticalAlignment = Enum.VerticalAlignment.Center
-    titleList.SortOrder = Enum.SortOrder.LayoutOrder
-    titleList.Padding = UDim.new(0, 8)
-
-    -- Title
-    local titleLbl = Instance.new("TextLabel", titleWrap)
-    titleLbl.Size = UDim2.new(0, 0, 0, 20); titleLbl.AutomaticSize = Enum.AutomaticSize.X
+    -- Title (fixed position, truncate if too long)
+    local titleLbl = Instance.new("TextLabel", headerBar)
+    titleLbl.Size = UDim2.new(1, -130, 0, 20); titleLbl.Position = UDim2.new(0, 52, 0, 10)
     titleLbl.BackgroundTransparency = 1; titleLbl.Text = windowTitle
-    titleLbl.TextColor3 = P.White; titleLbl.TextSize = 15
-    titleLbl.Font = Enum.Font.GothamBold; titleLbl.TextXAlignment = Enum.TextXAlignment.Left; titleLbl.ZIndex = 4
+    titleLbl.TextColor3 = P.White; titleLbl.TextSize = 14
+    titleLbl.Font = Enum.Font.GothamBold; titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    titleLbl.TextTruncate = Enum.TextTruncate.AtEnd; titleLbl.ZIndex = 4
 
-    -- Version tag
-    local verLbl = Instance.new("TextLabel", titleWrap)
-    verLbl.Size = UDim2.new(0, 0, 0, 20); verLbl.AutomaticSize = Enum.AutomaticSize.X
-    verLbl.BackgroundTransparency = 1; verLbl.Text = "v1.0.0"
-    verLbl.TextColor3 = P.TextMut; verLbl.TextSize = 11
-    verLbl.Font = Enum.Font.Gotham; verLbl.TextXAlignment = Enum.TextXAlignment.Left; verLbl.ZIndex = 4
+    -- Version tag (below title)
+    local verLbl = Instance.new("TextLabel", headerBar)
+    verLbl.Size = UDim2.new(0, 60, 0, 14); verLbl.Position = UDim2.new(0, 52, 0, 30)
+    verLbl.BackgroundTransparency = 1; verLbl.Text = "LOADER V1"
+    verLbl.TextColor3 = P.CyanBright; verLbl.TextSize = 10
+    verLbl.Font = Enum.Font.GothamMedium; verLbl.TextXAlignment = Enum.TextXAlignment.Left; verLbl.ZIndex = 4
 
     -- ══ CONTROL BUTTONS (MacOS Style Colored Dots) ══
     local ctrlFrame = Instance.new("Frame", headerBar)
