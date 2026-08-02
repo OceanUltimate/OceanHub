@@ -1,13 +1,20 @@
---[[
-    OceanHub Supabase Integration Module
-    Connects to Supabase REST API endpoint for user key authentication and logs.
-]]
-
 local HttpService = game:GetService("HttpService")
 
 local Supabase = {}
 Supabase.Url = "https://rjctulesphfoqsmnkqrw.supabase.co"
 Supabase.ApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqY3R1bGVzcGhmb3FzbW5rcXJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MTk1MTcsImV4cCI6MjEwMDk5NTUxN30.N4ynoTGMhQGZ5LtfGIIBJ7-hNaF7CtTIE4VefqGcEK0"
+
+local function decodeBody(body)
+    if not body or body == "" then
+        return nil
+    end
+
+    local ok, data = pcall(function()
+        return HttpService:JSONDecode(body)
+    end)
+
+    return ok and data or body
+end
 
 function Supabase.Request(endpoint, method, payload)
     local headers = {
@@ -26,21 +33,64 @@ function Supabase.Request(endpoint, method, payload)
         })
     end)
 
-    if success and response then
-        local ok, data = pcall(function() return HttpService:JSONDecode(response.Body) end)
-        return ok and data or response.Body
+    if not success or not response then
+        return false, {
+            valid = false,
+            message = "Request ke Supabase gagal."
+        }
     end
 
-    return nil
+    local data = decodeBody(response.Body)
+    if response.StatusCode >= 200 and response.StatusCode < 300 then
+        return true, data
+    end
+
+    if type(data) == "table" and data.message then
+        return false, {
+            valid = false,
+            message = data.message
+        }
+    end
+
+    return false, {
+        valid = false,
+        message = "Supabase error (" .. tostring(response.StatusCode) .. ")."
+    }
 end
 
-function Supabase.VerifyKey(key)
-    if not key or key == "" then return false end
-    local res = Supabase.Request("keys?select=*&key=eq." .. HttpService:UrlEncode(key), "GET")
-    if res and type(res) == "table" and #res > 0 then
-        return true, res[1]
+function Supabase.ValidateKey(key, playerName)
+    if not key or key == "" then
+        return false, {
+            valid = false,
+            message = "Key kosong."
+        }
     end
-    return false, nil
+
+    local ok, data = Supabase.Request("rpc/validate_key", "POST", {
+        input_key = key,
+        player_name = playerName or "Unknown"
+    })
+
+    if not ok then
+        return false, data
+    end
+
+    if type(data) ~= "table" then
+        return false, {
+            valid = false,
+            message = "Response Supabase tidak valid."
+        }
+    end
+
+    if data.valid == true then
+        return true, data
+    end
+
+    return false, data
+end
+
+function Supabase.VerifyKey(key, playerName)
+    return Supabase.ValidateKey(key, playerName)
 end
 
 return Supabase

@@ -95,14 +95,48 @@ local function addGlow(parent, pos, color, size, trans)
     return g
 end
 
+-- Corner lights: dibuat 2 layer (besar + kecil) biar sudut lebih "nyala"
+-- tapi tetap sesuai tema Ocean (cyan/purple/green/amber).
+-- Backward compatible:
+--   addCornerGlows(parent, UDim2, transparency)
+-- Advanced:
+--   addCornerGlows(parent, { size=UDim2, smallSize=UDim2, transparency=0.03, smallTransparency=0.12 })
 local function addCornerGlows(parent, sz, tr)
-    sz = sz or UDim2.new(0, 240, 0, 240)
-    tr = tr or 0.03
-    local offset = math.floor(sz.X.Offset * 0.35)
-    addGlow(parent, UDim2.new(0, -offset, 0, -offset), P.GlowCyan, sz, tr)
-    addGlow(parent, UDim2.new(1, -sz.X.Offset + offset, 0, -offset), P.GlowPurple, sz, tr)
-    addGlow(parent, UDim2.new(0, -offset, 1, -sz.Y.Offset + offset), P.GlowGreen, sz, tr)
-    addGlow(parent, UDim2.new(1, -sz.X.Offset + offset, 1, -sz.Y.Offset + offset), P.GlowAmber, sz, tr)
+    local cfg = nil
+    if type(sz) == "table" then
+        cfg = sz
+    else
+        cfg = { size = sz, transparency = tr }
+    end
+
+    local big = cfg.size or UDim2.new(0, 260, 0, 260)
+    local bigTr = cfg.transparency or 0.02
+
+    local small = cfg.smallSize or UDim2.new(0, 140, 0, 140)
+    local smallTr = cfg.smallTransparency or 0.08
+
+    -- offset supaya glow menyebar indah di 4 sudut
+    local offsetBig = math.floor(big.X.Offset * 0.35)
+    local offsetSmall = math.floor(small.X.Offset * 0.40)
+
+    -- Folder container for corner glow so toggle can easily reference
+    local glowFolder = Instance.new("Folder")
+    glowFolder.Name = "SuperThickCornerGlow"
+    glowFolder.Parent = parent
+
+    -- BIG layer (spread glow)
+    local b1 = addGlow(glowFolder, UDim2.new(0, -offsetBig, 0, -offsetBig), P.GlowCyan, big, bigTr)
+    local b2 = addGlow(glowFolder, UDim2.new(1, -big.X.Offset + offsetBig, 0, -offsetBig), P.GlowPurple, big, bigTr)
+    local b3 = addGlow(glowFolder, UDim2.new(0, -offsetBig, 1, -big.Y.Offset + offsetBig), P.GlowGreen, big, bigTr)
+    local b4 = addGlow(glowFolder, UDim2.new(1, -big.X.Offset + offsetBig, 1, -big.Y.Offset + offsetBig), P.GlowAmber, big, bigTr)
+
+    -- SMALL layer (intense corner light)
+    local s1 = addGlow(glowFolder, UDim2.new(0, -offsetSmall, 0, -offsetSmall), P.GlowCyan, small, smallTr)
+    local s2 = addGlow(glowFolder, UDim2.new(1, -small.X.Offset + offsetSmall, 0, -offsetSmall), P.GlowPurple, small, smallTr)
+    local s3 = addGlow(glowFolder, UDim2.new(0, -offsetSmall, 1, -small.Y.Offset + offsetSmall), P.GlowGreen, small, smallTr)
+    local s4 = addGlow(glowFolder, UDim2.new(1, -small.X.Offset + offsetSmall, 1, -small.Y.Offset + offsetSmall), P.GlowAmber, small, smallTr)
+
+    s1.ZIndex = 2; s2.ZIndex = 2; s3.ZIndex = 2; s4.ZIndex = 2
 end
 
 local function addTopGlow(parent)
@@ -751,6 +785,131 @@ local function AddLabel(parent, opts)
     return wrap
 end
 
+-- ──────── BANNER CARD ────────
+local function AddBanner(parent, opts)
+    opts = opts or {}
+    local text = opts.Text or "Welcome to OceanHub!"
+    local iconText = opts.Icon or "✦"
+
+    local f = Instance.new("Frame", parent)
+    f.Size = UDim2.new(1, -4, 0, 48)
+    f.BackgroundColor3 = P.Bg3; f.BorderSizePixel = 0; f.ZIndex = 5
+    Instance.new("UICorner", f).CornerRadius = UDim.new(0, 10)
+
+    local s = Instance.new("UIStroke", f)
+    s.Color = P.Purple; s.Transparency = 0.4; s.Thickness = 1
+
+    -- Inner background gradient accent
+    local bgGlow = Instance.new("Frame", f)
+    bgGlow.Size = UDim2.new(1, 0, 1, 0); bgGlow.BackgroundColor3 = P.Purple
+    bgGlow.BackgroundTransparency = 0.92; bgGlow.ZIndex = 5
+    Instance.new("UICorner", bgGlow).CornerRadius = UDim.new(0, 10)
+
+    local iconLbl = Instance.new("TextLabel", f)
+    iconLbl.Size = UDim2.new(0, 24, 0, 24); iconLbl.Position = UDim2.new(0, 10, 0.5, -12)
+    iconLbl.BackgroundTransparency = 1; iconLbl.Text = iconText
+    iconLbl.TextColor3 = P.Purple; iconLbl.TextSize = 16
+    iconLbl.Font = Enum.Font.GothamBold; iconLbl.ZIndex = 6
+
+    local txtLbl = Instance.new("TextLabel", f)
+    txtLbl.Size = UDim2.new(1, -44, 1, -8); txtLbl.Position = UDim2.new(0, 36, 0, 4)
+    txtLbl.BackgroundTransparency = 1; txtLbl.Text = text
+    txtLbl.TextColor3 = P.TextPri; txtLbl.TextSize = 11; txtLbl.TextWrapped = true
+    txtLbl.Font = Enum.Font.GothamMedium; txtLbl.TextXAlignment = Enum.TextXAlignment.Left; txtLbl.ZIndex = 6
+
+    return f
+end
+
+-- ──────── KEY-VALUE ROW ────────
+local function AddKeyVal(parent, opts)
+    opts = opts or {}
+    local key = opts.Key or "Key"
+    local val = opts.Value or "Value"
+    local valColor = opts.Color or P.Purple
+
+    local f = Instance.new("Frame", parent)
+    f.Size = UDim2.new(1, -4, 0, 28)
+    f.BackgroundTransparency = 1; f.ZIndex = 5
+
+    local kLbl = Instance.new("TextLabel", f)
+    kLbl.Size = UDim2.new(0.5, -10, 1, 0); kLbl.Position = UDim2.new(0, 8, 0, 0)
+    kLbl.BackgroundTransparency = 1; kLbl.Text = key
+    kLbl.TextColor3 = P.TextSec; kLbl.TextSize = 12
+    kLbl.Font = Enum.Font.Gotham; kLbl.TextXAlignment = Enum.TextXAlignment.Left; kLbl.ZIndex = 6
+
+    local vLbl = Instance.new("TextLabel", f)
+    vLbl.Size = UDim2.new(0.5, -10, 1, 0); vLbl.Position = UDim2.new(0.5, 0, 0, 0)
+    vLbl.BackgroundTransparency = 1; vLbl.Text = val
+    vLbl.TextColor3 = valColor; vLbl.TextSize = 12
+    vLbl.Font = Enum.Font.GothamBold; vLbl.TextXAlignment = Enum.TextXAlignment.Right; vLbl.ZIndex = 6
+
+    return f
+end
+
+-- ──────── CARD CONTAINER ────────
+local function AddCard(parent, opts)
+    opts = opts or {}
+    local title = opts.Title or "Section"
+    local iconText = opts.Icon or "⬡"
+
+    local card = Instance.new("Frame", parent)
+    card.Size = UDim2.new(1, -4, 0, 40)
+    card.AutomaticSize = Enum.AutomaticSize.Y
+    card.BackgroundColor3 = P.Bg3; card.BorderSizePixel = 0; card.ZIndex = 5
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 12)
+
+    local s = Instance.new("UIStroke", card)
+    s.Color = P.Border2; s.Transparency = 0.3; s.Thickness = 1.5
+
+    -- Header bar
+    local header = Instance.new("Frame", card)
+    header.Size = UDim2.new(1, 0, 0, 36)
+    header.BackgroundTransparency = 1; header.ZIndex = 6
+
+    local iconLbl = Instance.new("TextLabel", header)
+    iconLbl.Size = UDim2.new(0, 20, 1, 0); iconLbl.Position = UDim2.new(0, 12, 0, 0)
+    iconLbl.BackgroundTransparency = 1; iconLbl.Text = iconText
+    iconLbl.TextColor3 = P.Cyan; iconLbl.TextSize = 13
+    iconLbl.Font = Enum.Font.GothamBold; iconLbl.ZIndex = 7
+
+    local titleLbl = Instance.new("TextLabel", header)
+    titleLbl.Size = UDim2.new(1, -70, 1, 0); titleLbl.Position = UDim2.new(0, 36, 0, 0)
+    titleLbl.BackgroundTransparency = 1; titleLbl.Text = title
+    titleLbl.TextColor3 = P.White; titleLbl.TextSize = 13
+    titleLbl.Font = Enum.Font.GothamBold; titleLbl.TextXAlignment = Enum.TextXAlignment.Left; titleLbl.ZIndex = 7
+
+    local arrow = Instance.new("TextLabel", header)
+    arrow.Size = UDim2.new(0, 24, 1, 0); arrow.Position = UDim2.new(1, -30, 0, 0)
+    arrow.BackgroundTransparency = 1; arrow.Text = "▼"
+    arrow.TextColor3 = P.TextMut; arrow.TextSize = 10
+    arrow.Font = Enum.Font.GothamBold; arrow.ZIndex = 7
+
+    -- Container for card items
+    local container = Instance.new("Frame", card)
+    container.Size = UDim2.new(1, -16, 0, 0)
+    container.Position = UDim2.new(0, 8, 0, 36)
+    container.AutomaticSize = Enum.AutomaticSize.Y
+    container.BackgroundTransparency = 1; container.ZIndex = 6
+
+    local cl = Instance.new("UIListLayout", container)
+    cl.SortOrder = Enum.SortOrder.LayoutOrder; cl.Padding = UDim.new(0, 4)
+
+    local cp = Instance.new("UIPadding", container)
+    cp.PaddingBottom = UDim.new(0, 8)
+
+    local CardObj = { Frame = card, Container = container }
+    function CardObj:AddButton(o) return AddButton(container, o) end
+    function CardObj:AddToggle(o) return AddToggle(container, o) end
+    function CardObj:AddSlider(o) return AddSlider(container, o) end
+    function CardObj:AddDropdown(o) return AddDropdown(container, o) end
+    function CardObj:AddTextbox(o) return AddTextbox(container, o) end
+    function CardObj:AddLabel(o) return AddLabel(container, o) end
+    function CardObj:AddBanner(o) return AddBanner(container, o) end
+    function CardObj:AddKeyVal(o) return AddKeyVal(container, o) end
+
+    return CardObj
+end
+
 -- ═══════════════════════════════════════════════════
 -- MAIN WINDOW
 -- ═══════════════════════════════════════════════════
@@ -842,49 +1001,61 @@ function OceanLib:CreateWindow(options)
     -- Glow under header line
     addGlow(main, UDim2.new(0.5, -100, 0, 35), P.GlowCyan, UDim2.new(0, 200, 0, 30), 0.7)
 
-    -- Logo
+    -- Logo Box
     local logoBox = Instance.new("Frame", headerBar)
-    logoBox.Size = UDim2.new(0, 36, 0, 36); logoBox.Position = UDim2.new(0, 14, 0, 8)
-    logoBox.BackgroundColor3 = P.CyanDark; logoBox.ZIndex = 4
-    Instance.new("UICorner", logoBox).CornerRadius = UDim.new(0, 9)
+    logoBox.Size = UDim2.new(0, 32, 0, 32); logoBox.Position = UDim2.new(0, 12, 0, 10)
+    logoBox.BackgroundColor3 = P.Purple; logoBox.ZIndex = 4
+    Instance.new("UICorner", logoBox).CornerRadius = UDim.new(0, 8)
     local logoBoxS = Instance.new("UIStroke", logoBox); logoBoxS.Color = P.Cyan; logoBoxS.Transparency = 0.4
 
     local logoImg = Instance.new("ImageLabel", logoBox)
     logoImg.Size = UDim2.new(1, 0, 1, 0); logoImg.BackgroundTransparency = 1
     logoImg.Image = iconId; logoImg.ScaleType = Enum.ScaleType.Fit; logoImg.ZIndex = 5
-    Instance.new("UICorner", logoImg).CornerRadius = UDim.new(0, 9)
+    Instance.new("UICorner", logoImg).CornerRadius = UDim.new(0, 8)
 
     -- Title
     local titleLbl = Instance.new("TextLabel", headerBar)
-    titleLbl.Size = UDim2.new(1, -140, 0, 20)
-    titleLbl.Position = UDim2.new(0, 58, 0, 16)
+    titleLbl.Size = UDim2.new(0, 0, 0, 20); titleLbl.Position = UDim2.new(0, 52, 0, 16)
+    titleLbl.AutomaticSize = Enum.AutomaticSize.X
     titleLbl.BackgroundTransparency = 1; titleLbl.Text = windowTitle
-    titleLbl.TextColor3 = P.White; titleLbl.TextSize = 16
+    titleLbl.TextColor3 = P.White; titleLbl.TextSize = 15
     titleLbl.Font = Enum.Font.GothamBold; titleLbl.TextXAlignment = Enum.TextXAlignment.Left; titleLbl.ZIndex = 4
 
-    -- ══ CONTROL BUTTONS ══
+    -- Sub-badge (+ PREMIUM)
+    local badge = Instance.new("Frame", headerBar)
+    badge.Size = UDim2.new(0, 75, 0, 20); badge.Position = UDim2.new(0, 185, 0, 16)
+    badge.BackgroundColor3 = P.Purple; badge.BackgroundTransparency = 0.8; badge.ZIndex = 4
+    Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 10)
+    local badgeS = Instance.new("UIStroke", badge); badgeS.Color = P.Purple; badgeS.Transparency = 0.3
+
+    local badgeTxt = Instance.new("TextLabel", badge)
+    badgeTxt.Size = UDim2.new(1, 0, 1, 0); badgeTxt.BackgroundTransparency = 1
+    badgeTxt.Text = "✦ PREMIUM"; badgeTxt.TextColor3 = P.Purple
+    badgeTxt.TextSize = 9; badgeTxt.Font = Enum.Font.GothamBold; badgeTxt.ZIndex = 5
+
+    -- Version tag
+    local verLbl = Instance.new("TextLabel", headerBar)
+    verLbl.Size = UDim2.new(0, 50, 0, 20); verLbl.Position = UDim2.new(0, 268, 0, 16)
+    verLbl.BackgroundTransparency = 1; verLbl.Text = "v1.0.0"
+    verLbl.TextColor3 = P.TextMut; verLbl.TextSize = 11
+    verLbl.Font = Enum.Font.Gotham; verLbl.TextXAlignment = Enum.TextXAlignment.Left; verLbl.ZIndex = 4
+
+    -- ══ CONTROL BUTTONS (MacOS Style Colored Dots) ══
     local ctrlFrame = Instance.new("Frame", headerBar)
-    ctrlFrame.Size = UDim2.new(0, 60, 0, 28)
-    ctrlFrame.Position = UDim2.new(1, -72, 0, 12)
+    ctrlFrame.Size = UDim2.new(0, 48, 0, 28)
+    ctrlFrame.Position = UDim2.new(1, -58, 0, 12)
     ctrlFrame.BackgroundTransparency = 1; ctrlFrame.ZIndex = 4
 
-    -- Minimize
+    -- Minimize (Yellow Dot)
     local minBtn = Instance.new("TextButton", ctrlFrame)
-    minBtn.Size = UDim2.new(0, 26, 0, 26); minBtn.Position = UDim2.new(0, 0, 0, 0)
-    minBtn.BackgroundColor3 = P.Bg4; minBtn.BackgroundTransparency = 0.3
-    minBtn.Text = "−"; minBtn.TextColor3 = P.TextSec; minBtn.TextSize = 18
-    minBtn.Font = Enum.Font.GothamBold; minBtn.ZIndex = 5
-    Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 7)
-    local minBtnS = Instance.new("UIStroke", minBtn); minBtnS.Color = P.Border1; minBtnS.Transparency = 0.4
+    minBtn.Size = UDim2.new(0, 14, 0, 14); minBtn.Position = UDim2.new(0, 4, 0.5, -7)
+    minBtn.BackgroundColor3 = P.Yellow; minBtn.BackgroundTransparency = 0
+    minBtn.Text = ""; minBtn.ZIndex = 5
+    Instance.new("UICorner", minBtn).CornerRadius = UDim.new(1, 0)
+    local minBtnS = Instance.new("UIStroke", minBtn); minBtnS.Color = Color3.fromRGB(200, 160, 0); minBtnS.Transparency = 0.3
 
-    minBtn.MouseEnter:Connect(function()
-        tw(minBtn, {BackgroundColor3 = P.CyanDark, BackgroundTransparency = 0, TextColor3 = P.White})
-        tw(minBtnS, {Color = P.Cyan, Transparency = 0})
-    end)
-    minBtn.MouseLeave:Connect(function()
-        tw(minBtn, {BackgroundColor3 = P.Bg4, BackgroundTransparency = 0.3, TextColor3 = P.TextSec})
-        tw(minBtnS, {Color = P.Border1, Transparency = 0.4})
-    end)
+    minBtn.MouseEnter:Connect(function() tw(minBtn, {Size = UDim2.new(0, 16, 0, 16)}) end)
+    minBtn.MouseLeave:Connect(function() tw(minBtn, {Size = UDim2.new(0, 14, 0, 14)}) end)
     minBtn.MouseButton1Click:Connect(function()
         tw(wrapper, {Size = UDim2.new(0, 0, 0, 0)}, TI.Med)
         task.delay(0.3, function()
@@ -894,39 +1065,76 @@ function OceanLib:CreateWindow(options)
         end)
     end)
 
-    -- Close
+    -- Close (Red/Orange Dot)
     local closeBtn = Instance.new("TextButton", ctrlFrame)
-    closeBtn.Size = UDim2.new(0, 26, 0, 26); closeBtn.Position = UDim2.new(0, 34, 0, 0)
-    closeBtn.BackgroundColor3 = P.Bg4; closeBtn.BackgroundTransparency = 0.3
-    closeBtn.Text = "✕"; closeBtn.TextColor3 = P.TextSec; closeBtn.TextSize = 11
-    closeBtn.Font = Enum.Font.GothamBold; closeBtn.ZIndex = 5
-    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 7)
-    local closeBtnS = Instance.new("UIStroke", closeBtn); closeBtnS.Color = P.Border1; closeBtnS.Transparency = 0.4
+    closeBtn.Size = UDim2.new(0, 14, 0, 14); closeBtn.Position = UDim2.new(0, 26, 0.5, -7)
+    closeBtn.BackgroundColor3 = P.Orange; closeBtn.BackgroundTransparency = 0
+    closeBtn.Text = ""; closeBtn.ZIndex = 5
+    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0)
+    local closeBtnS = Instance.new("UIStroke", closeBtn); closeBtnS.Color = Color3.fromRGB(200, 80, 0); closeBtnS.Transparency = 0.3
 
-    closeBtn.MouseEnter:Connect(function()
-        tw(closeBtn, {BackgroundColor3 = P.Red, BackgroundTransparency = 0, TextColor3 = P.White})
-        tw(closeBtnS, {Color = Color3.fromRGB(255, 100, 100), Transparency = 0})
-    end)
-    closeBtn.MouseLeave:Connect(function()
-        tw(closeBtn, {BackgroundColor3 = P.Bg4, BackgroundTransparency = 0.3, TextColor3 = P.TextSec})
-        tw(closeBtnS, {Color = P.Border1, Transparency = 0.4})
-    end)
+    closeBtn.MouseEnter:Connect(function() tw(closeBtn, {Size = UDim2.new(0, 16, 0, 16)}) end)
+    closeBtn.MouseLeave:Connect(function() tw(closeBtn, {Size = UDim2.new(0, 14, 0, 14)}) end)
     closeBtn.MouseButton1Click:Connect(function() sg:Destroy() end)
 
     -- ══ TAB SIDEBAR ══
     local sidebar = Instance.new("Frame", main)
-    sidebar.Size = UDim2.new(0, 130, 1, -62)
+    sidebar.Size = UDim2.new(0, 134, 1, -62)
     sidebar.Position = UDim2.new(0, 8, 0, 58)
     sidebar.BackgroundColor3 = P.Bg1; sidebar.BackgroundTransparency = 0.5
     sidebar.BorderSizePixel = 0; sidebar.ZIndex = 3
     Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 10)
 
-    local sidebarPad = Instance.new("UIPadding", sidebar)
-    sidebarPad.PaddingTop = UDim.new(0, 6); sidebarPad.PaddingBottom = UDim.new(0, 6)
-    sidebarPad.PaddingLeft = UDim.new(0, 5); sidebarPad.PaddingRight = UDim.new(0, 5)
+    -- Player Profile Card in Sidebar
+    local pCard = Instance.new("Frame", sidebar)
+    pCard.Size = UDim2.new(1, -8, 0, 42)
+    pCard.Position = UDim2.new(0, 4, 0, 6)
+    pCard.BackgroundColor3 = P.Bg3; pCard.BackgroundTransparency = 0.4; pCard.ZIndex = 4
+    Instance.new("UICorner", pCard).CornerRadius = UDim.new(0, 8)
+    local pCardS = Instance.new("UIStroke", pCard); pCardS.Color = P.Border1; pCardS.Transparency = 0.5
 
-    local tabLayout = Instance.new("UIListLayout", sidebar)
+    -- Avatar Circle
+    local pAvatar = Instance.new("Frame", pCard)
+    pAvatar.Size = UDim2.new(0, 26, 0, 26); pAvatar.Position = UDim2.new(0, 6, 0.5, -13)
+    pAvatar.BackgroundColor3 = P.Purple; pAvatar.ZIndex = 5
+    Instance.new("UICorner", pAvatar).CornerRadius = UDim.new(1, 0)
+
+    local localPlayerName = (Players.LocalPlayer and Players.LocalPlayer.Name) or "User"
+    local initialChar = string.sub(localPlayerName, 1, 1):upper()
+
+    local pAvatarTxt = Instance.new("TextLabel", pAvatar)
+    pAvatarTxt.Size = UDim2.new(1, 0, 1, 0); pAvatarTxt.BackgroundTransparency = 1
+    pAvatarTxt.Text = initialChar; pAvatarTxt.TextColor3 = P.White
+    pAvatarTxt.TextSize = 13; pAvatarTxt.Font = Enum.Font.GothamBold; pAvatarTxt.ZIndex = 6
+
+    -- Name
+    local pName = Instance.new("TextLabel", pCard)
+    pName.Size = UDim2.new(1, -40, 0, 16); pName.Position = UDim2.new(0, 36, 0, 5)
+    pName.BackgroundTransparency = 1; pName.Text = localPlayerName
+    pName.TextColor3 = P.White; pName.TextSize = 11; pName.TextTruncate = Enum.TextTruncate.AtEnd
+    pName.Font = Enum.Font.GothamBold; pName.TextXAlignment = Enum.TextXAlignment.Left; pName.ZIndex = 5
+
+    -- Status dot
+    local pStatus = Instance.new("TextLabel", pCard)
+    pStatus.Size = UDim2.new(1, -40, 0, 14); pStatus.Position = UDim2.new(0, 36, 0, 21)
+    pStatus.BackgroundTransparency = 1; pStatus.Text = "● Premium"
+    pStatus.TextColor3 = P.Green; pStatus.TextSize = 9
+    pStatus.Font = Enum.Font.GothamMedium; pStatus.TextXAlignment = Enum.TextXAlignment.Left; pStatus.ZIndex = 5
+
+    -- Tab Container Frame inside Sidebar
+    local tabContainer = Instance.new("Frame", sidebar)
+    tabContainer.Size = UDim2.new(1, -8, 1, -72); tabContainer.Position = UDim2.new(0, 4, 0, 54)
+    tabContainer.BackgroundTransparency = 1; tabContainer.ZIndex = 4
+
+    local tabLayout = Instance.new("UIListLayout", tabContainer)
     tabLayout.SortOrder = Enum.SortOrder.LayoutOrder; tabLayout.Padding = UDim.new(0, 4)
+
+    -- Sidebar Footer Text
+    local sideFooter = Instance.new("TextLabel", sidebar)
+    sideFooter.Size = UDim2.new(1, 0, 0, 14); sideFooter.Position = UDim2.new(0, 0, 1, -16)
+    sideFooter.BackgroundTransparency = 1; sideFooter.Text = "ocean • v1.0"
+    sideFooter.TextColor3 = P.TextMut; sideFooter.TextSize = 9
+    sideFooter.Font = Enum.Font.Gotham; sideFooter.ZIndex = 5
 
     -- Tab/Content separator (matches header line color)
     local sepLine = Instance.new("Frame", main)
@@ -949,7 +1157,7 @@ function OceanLib:CreateWindow(options)
         local tabName = tabOpts.Name or "Tab"
 
         -- Tab button
-        local tabBtn = Instance.new("TextButton", sidebar)
+        local tabBtn = Instance.new("TextButton", tabContainer)
         tabBtn.Name = tabName; tabBtn.Size = UDim2.new(1, 0, 0, 32)
         tabBtn.BackgroundColor3 = P.Bg3; tabBtn.BackgroundTransparency = 0.5
         tabBtn.Text = ""; tabBtn.ZIndex = 4
@@ -1003,6 +1211,9 @@ function OceanLib:CreateWindow(options)
         function TabObj:AddDropdown(o) return AddDropdown(page, o) end
         function TabObj:AddTextbox(o) return AddTextbox(page, o) end
         function TabObj:AddLabel(o) return AddLabel(page, o) end
+        function TabObj:AddCard(o) return AddCard(page, o) end
+        function TabObj:AddBanner(o) return AddBanner(page, o) end
+        function TabObj:AddKeyVal(o) return AddKeyVal(page, o) end
 
         local function activate()
             for _, t in pairs(WinObj.Tabs) do

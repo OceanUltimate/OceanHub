@@ -183,9 +183,17 @@ end
 -- UI
 -- ═══════════════════════════════════════════════════
 local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
-InfoTab:AddLabel({ Text = "Tier: Premium" })
-InfoTab:AddLabel({ Text = "Status Key: unlimited" })
-InfoTab:AddLabel({ Text = "Script: Blade Ball" })
+
+local welcomeCard = InfoTab:AddCard({ Title = "Selamat Datang", Icon = "⌂" })
+welcomeCard:AddBanner({ Text = "Kamu menggunakan OceanHub Premium. Semua fitur terbuka penuh.", Icon = "✦" })
+welcomeCard:AddKeyVal({ Key = "Game Terdeteksi", Value = "Blade Ball", Color = Color3.fromRGB(139, 92, 246) })
+welcomeCard:AddKeyVal({ Key = "PlaceId", Value = tostring(game.PlaceId), Color = Color3.fromRGB(148, 180, 216) })
+welcomeCard:AddKeyVal({ Key = "Ping", Value = "99 ms ⚠️", Color = Color3.fromRGB(250, 204, 21) })
+
+local statusCard = InfoTab:AddCard({ Title = "Status Hub", Icon = "⚙" })
+statusCard:AddKeyVal({ Key = "Tier", Value = "Premium", Color = Color3.fromRGB(139, 92, 246) })
+statusCard:AddKeyVal({ Key = "Status Key", Value = "unlimited", Color = Color3.fromRGB(56, 189, 248) })
+statusCard:AddKeyVal({ Key = "Berlaku", Value = "Selamanya ∞", Color = Color3.fromRGB(34, 197, 94) })
 
 local ParryTab = Window:MakeTab({ Name = "Auto Parry", Icon = "rbxassetid://6031068452" })
 ParryTab:AddToggle({ Name = "Auto Parry", Keybind = "F", Default = false, Callback = function(val)
@@ -210,7 +218,7 @@ end })
 
 local PremiumTab = Window:MakeTab({ Name = ".", Icon = "rbxassetid://6031068428" })
 PremiumTab:AddToggle({ Name = "Light (Corner Glow)", Default = true, Callback = function(val)
-    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    local sg = CoreGui:FindFirstChild("OceanHubUI") or CoreGui:FindFirstChild("OceanScriptLoader")
     if sg then
         for _, g in ipairs(sg:GetDescendants()) do
             if g.Name == "SuperThickCornerGlow" or g.Name == "Glow" then g.Visible = val end
@@ -218,7 +226,7 @@ PremiumTab:AddToggle({ Name = "Light (Corner Glow)", Default = true, Callback = 
     end
 end })
 PremiumTab:AddToggle({ Name = "Background Effects", Default = true, Callback = function(val)
-    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
+    local sg = CoreGui:FindFirstChild("OceanHubUI") or CoreGui:FindFirstChild("OceanScriptLoader")
     if sg then
         local w = sg:FindFirstChild("Wrapper")
         if w then w.BackgroundTransparency = val and 0 or 1 end

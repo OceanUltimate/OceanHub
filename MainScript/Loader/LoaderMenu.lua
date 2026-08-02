@@ -4,8 +4,11 @@
 ]]
 
 local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local setclipboard = setclipboard or toclipboard or function(text) print("Clipboard:", text) end
+local LocalPlayer = Players.LocalPlayer
+local Supabase = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Loader/Component/Supabase.lua"))()
 
 if CoreGui:FindFirstChild("OceanScriptLoader") then
     CoreGui:FindFirstChild("OceanScriptLoader"):Destroy()
@@ -45,6 +48,85 @@ local CONFIG = {
     InfoActiveText = Color3.fromRGB(185, 195, 215),
 }
 
+local GAME_LIST = {"Arsenal", "Blade Ball", "Death Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}
+local TIER_RANK = {
+    free = 1,
+    freemium = 2,
+    premium = 3,
+}
+
+local function normalizeTierName(tierName)
+    local text = string.lower(tostring(tierName or "free"))
+    if text == "premium" or text == "vip" then
+        return "premium"
+    end
+    if text == "freemium" or text == "freeium" then
+        return "freemium"
+    end
+    return "free"
+end
+
+local function playerHasTier(grantedTier, requiredTier)
+    return (TIER_RANK[normalizeTierName(grantedTier)] or 0) >= (TIER_RANK[normalizeTierName(requiredTier)] or 99)
+end
+
+local function getPlayerName()
+    if LocalPlayer and LocalPlayer.Name and LocalPlayer.Name ~= "" then
+        return LocalPlayer.Name
+    end
+    return "Unknown"
+end
+
+local function saveKey(keyText)
+    if not keyText or keyText == "" then
+        return
+    end
+
+    pcall(function()
+        writefile("OceanHubKey.txt", keyText)
+    end)
+end
+
+local function clearSavedKey()
+    pcall(function()
+        if isfile("OceanHubKey.txt") then
+            delfile("OceanHubKey.txt")
+        end
+    end)
+end
+
+local function setButtonMessage(button, defaultText, defaultColor, message, messageColor, duration)
+    if not button or not button.Parent then
+        return
+    end
+
+    button.Text = message
+    if messageColor then
+        button.TextColor3 = messageColor
+    end
+
+    task.delay(duration or 2, function()
+        if button and button.Parent then
+            button.Text = defaultText
+            button.TextColor3 = defaultColor
+        end
+    end)
+end
+
+local function verifyAccess(requiredTier, keyText)
+    local ok, response = Supabase.ValidateKey(keyText, getPlayerName())
+    if not ok then
+        return false, response and response.message or "Validasi key gagal.", nil
+    end
+
+    local serverTier = normalizeTierName(response and response.tier)
+    if not playerHasTier(serverTier, requiredTier) then
+        return false, "Tier key tidak cocok untuk menu ini.", serverTier
+    end
+
+    return true, response and response.message or "Key valid!", serverTier
+end
+
 -- All game scripts organized by tier (Free / Freemium / Premium)
 local SCRIPTS = {
     free = {
@@ -54,6 +136,7 @@ local SCRIPTS = {
         ["Sniper Arena"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SniperArena/Free/LoaderSniperArena.lua"))()',
         ["Blade Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/BladeBall/Free/LoaderBladeBall.lua"))()',
         ["Phantom Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/PhantomBall/Free/LoaderPhantomBall.lua"))()',
+        ["Death Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/DeathBall/Free/LoaderDeathBall.lua"))()',
     },
     freemium = {
         ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/Premium/LoaderArsenal.lua"))()',
@@ -62,6 +145,7 @@ local SCRIPTS = {
         ["Sniper Arena"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SniperArena/Premium/LoaderSniperArena.lua"))()',
         ["Blade Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/BladeBall/Premium/LoaderBladeBall.lua"))()',
         ["Phantom Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/PhantomBall/Premium/LoaderPhantomBall.lua"))()',
+        ["Death Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/DeathBall/Premium/LoaderDeathBall.lua"))()',
     },
     premium = {
         ["Arsenal"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/Arsenal/Premium/LoaderArsenal.lua"))()',
@@ -70,6 +154,7 @@ local SCRIPTS = {
         ["Sniper Arena"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/SniperArena/Premium/LoaderSniperArena.lua"))()',
         ["Blade Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/BladeBall/Premium/LoaderBladeBall.lua"))()',
         ["Phantom Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/PhantomBall/Premium/LoaderPhantomBall.lua"))()',
+        ["Death Ball"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainScript/Script/DeathBall/Premium/LoaderDeathBall.lua"))()',
     }
 }
 
@@ -333,6 +418,15 @@ local function createGameList(parentPanel, tier, games, backCallback)
     end
 end
 
+local function openTierGames(stepOne, stepTwo, tier)
+    stepOne.Visible = false
+    stepTwo.Visible = true
+    createGameList(stepTwo, tier, GAME_LIST, function()
+        stepTwo.Visible = false
+        stepOne.Visible = true
+    end)
+end
+
 -- 1. Free Panel
 local pFree = Instance.new("Frame", ContentFrame)
 pFree.Size = UDim2.new(1, 0, 1, 0)
@@ -367,7 +461,7 @@ fS2.ZIndex = 3
 fConfirmBtn.MouseButton1Click:Connect(function()
     fS1.Visible = false
     fS2.Visible = true
-    createGameList(fS2, "free", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
+    createGameList(fS2, "free", {"Arsenal", "Blade Ball", "Death Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
         fS2.Visible = false
         fS1.Visible = true
     end)
@@ -473,16 +567,21 @@ fmS2.ZIndex = 3
 
 fmBtn.MouseButton1Click:Connect(function()
     local keyText = fmKeyIn.Text
-    local lKey = string.lower(keyText)
-    if keyText ~= "" and (string.find(lKey, "oceanfreeium-") or lKey == "ocean") then
-        if lKey ~= "ocean" then pcall(function() writefile("OceanHubKey.txt", keyText) end) end
-        fmS1.Visible = false
-        fmS2.Visible = true
-        createGameList(fmS2, "freemium", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
-            fmS2.Visible = false
-            fmS1.Visible = true
-        end)
+    if keyText == "" then
+        setButtonMessage(fmBtn, "Verify key", Color3.fromRGB(110, 231, 183), "Masukkan key dulu", Color3.fromRGB(255, 210, 120))
+        return
     end
+
+    fmBtn.Text = "Checking..."
+    local ok, message = verifyAccess("freemium", keyText)
+    if not ok then
+        setButtonMessage(fmBtn, "Verify key", Color3.fromRGB(110, 231, 183), message or "Key tidak valid", Color3.fromRGB(255, 140, 140), 2.5)
+        return
+    end
+
+    saveKey(keyText)
+    setButtonMessage(fmBtn, "Verify key", Color3.fromRGB(110, 231, 183), "Key valid", Color3.fromRGB(255, 255, 255), 1.2)
+    openTierGames(fmS1, fmS2, "freemium")
 end)
 
 -- 3. Premium Panel
@@ -544,16 +643,21 @@ pS2.ZIndex = 3
 
 pBtn.MouseButton1Click:Connect(function()
     local keyText = pKeyIn.Text
-    local lKey = string.lower(keyText)
-    if keyText ~= "" and (string.find(lKey, "oceanpremium-") or lKey == "ocean") then
-        if lKey ~= "ocean" then pcall(function() writefile("OceanHubKey.txt", keyText) end) end
-        pS1.Visible = false
-        pS2.Visible = true
-        createGameList(pS2, "premium", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
-            pS2.Visible = false
-            pS1.Visible = true
-        end)
+    if keyText == "" then
+        setButtonMessage(pBtn, "Verify key", Color3.fromRGB(224, 231, 255), "Masukkan key dulu", Color3.fromRGB(255, 210, 120))
+        return
     end
+
+    pBtn.Text = "Checking..."
+    local ok, message = verifyAccess("premium", keyText)
+    if not ok then
+        setButtonMessage(pBtn, "Verify key", Color3.fromRGB(224, 231, 255), message or "Key tidak valid", Color3.fromRGB(255, 140, 140), 2.5)
+        return
+    end
+
+    saveKey(keyText)
+    setButtonMessage(pBtn, "Verify key", Color3.fromRGB(224, 231, 255), "Key valid", Color3.fromRGB(255, 255, 255), 1.2)
+    openTierGames(pS1, pS2, "premium")
 end)
 
 -- 4. Info Panel
@@ -675,29 +779,17 @@ task.spawn(function()
     pcall(function()
         if isfile("OceanHubKey.txt") then
             local savedKey = readfile("OceanHubKey.txt")
-            local lKey = string.lower(savedKey)
-            if string.find(lKey, "oceanpremium-") then
+            local ok, _, serverTier = verifyAccess("freemium", savedKey)
+            if ok and serverTier == "premium" then
                 pKeyIn.Text = savedKey
-                -- Verify immediately
                 switchTab("premium")
-                pS1.Visible = false
-                pS2.Visible = true
-                createGameList(pS2, "premium", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
-                    pS2.Visible = false
-                    pS1.Visible = true
-                end)
-            elseif string.find(lKey, "oceanfreeium-") then
+                openTierGames(pS1, pS2, "premium")
+            elseif ok and serverTier == "freemium" then
                 fmKeyIn.Text = savedKey
                 switchTab("freemium")
-                fmS1.Visible = false
-                fmS2.Visible = true
-                createGameList(fmS2, "freemium", {"Arsenal", "Blade Ball", "Phantom Ball", "Rivals", "Sell Lemons", "Sniper Arena"}, function()
-                    fmS2.Visible = false
-                    fmS1.Visible = true
-                end)
+                openTierGames(fmS1, fmS2, "freemium")
             else
-                -- Invalid format, delete it
-                delfile("OceanHubKey.txt")
+                clearSavedKey()
             end
         end
     end)
