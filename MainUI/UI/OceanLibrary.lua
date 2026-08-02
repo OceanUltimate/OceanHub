@@ -17,41 +17,43 @@ local Players = game:GetService("Players")
 -- COLOR PALETTE - Midnight Ocean Premium
 -- ═══════════════════════════════════════════════════
 local P = {
-    -- Backgrounds (layered depth)
-    Bg1 = Color3.fromRGB(4, 8, 20),       -- deepest
-    Bg2 = Color3.fromRGB(8, 15, 35),      -- main window
-    Bg3 = Color3.fromRGB(12, 22, 48),     -- cards
-    Bg4 = Color3.fromRGB(16, 30, 62),     -- elevated
-    Bg5 = Color3.fromRGB(20, 38, 78),     -- hover
+    -- Backgrounds (layered depth - BorcaScriptHub Theme)
+    Bg1 = Color3.fromRGB(13, 13, 18),       -- #0d0d12 deepest base
+    Bg2 = Color3.fromRGB(19, 19, 26),      -- #13131a main window panel
+    Bg3 = Color3.fromRGB(26, 26, 36),     -- #1a1a24 surface / cards
+    Bg4 = Color3.fromRGB(31, 31, 46),     -- #1f1f2e hover / elevated
+    Bg5 = Color3.fromRGB(34, 34, 58),     -- #22223a active
 
     -- Accent
+    Purple = Color3.fromRGB(139, 92, 246),     -- #8b5cf6 accent violet
+    PurpleDark = Color3.fromRGB(109, 63, 214), -- #6d3fd6
+    PurpleLight = Color3.fromRGB(167, 139, 250),-- #a78bfa
     Cyan = Color3.fromRGB(56, 189, 248),
     CyanDark = Color3.fromRGB(14, 116, 178),
     CyanBright = Color3.fromRGB(125, 220, 255),
-    Blue = Color3.fromRGB(59, 130, 246),
-    Purple = Color3.fromRGB(139, 92, 246),
-    Green = Color3.fromRGB(34, 197, 94),
+    Blue = Color3.fromRGB(96, 165, 250),       -- #60a5fa
+    Green = Color3.fromRGB(52, 211, 153),      -- #34d399
     GreenDark = Color3.fromRGB(16, 120, 60),
-    Red = Color3.fromRGB(239, 68, 68),
-    Yellow = Color3.fromRGB(250, 204, 21),
+    Red = Color3.fromRGB(248, 113, 113),       -- #f87171
+    Yellow = Color3.fromRGB(251, 191, 36),     -- #fbbf24
     Orange = Color3.fromRGB(249, 115, 22),
 
     -- Text
-    White = Color3.fromRGB(248, 250, 252),
-    TextPri = Color3.fromRGB(226, 236, 248),
-    TextSec = Color3.fromRGB(148, 180, 216),
-    TextMut = Color3.fromRGB(80, 115, 160),
-    TextDim = Color3.fromRGB(50, 75, 110),
+    White = Color3.fromRGB(241, 240, 255),     -- #f1f0ff
+    TextPri = Color3.fromRGB(241, 240, 255),   -- #f1f0ff
+    TextSec = Color3.fromRGB(176, 174, 200),   -- #b0aec8
+    TextMut = Color3.fromRGB(107, 105, 135),   -- #6b6987
+    TextDim = Color3.fromRGB(80, 78, 105),
 
     -- Borders
-    Border1 = Color3.fromRGB(20, 45, 85),
-    Border2 = Color3.fromRGB(30, 65, 120),
-    Border3 = Color3.fromRGB(45, 100, 170),
-    BorderGlow = Color3.fromRGB(56, 189, 248),
+    Border1 = Color3.fromRGB(35, 35, 50),
+    Border2 = Color3.fromRGB(50, 45, 75),
+    Border3 = Color3.fromRGB(139, 92, 246),    -- Accent border
+    BorderGlow = Color3.fromRGB(139, 92, 246),
 
     -- Glow
     GlowCyan = Color3.fromRGB(56, 189, 248),
-    GlowPurple = Color3.fromRGB(129, 92, 248),
+    GlowPurple = Color3.fromRGB(139, 92, 246),
     GlowGreen = Color3.fromRGB(52, 211, 153),
     GlowAmber = Color3.fromRGB(251, 191, 36),
 
