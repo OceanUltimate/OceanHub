@@ -97,12 +97,7 @@ local function addGlow(parent, pos, color, size, trans)
     return g
 end
 
--- Corner lights: dibuat 2 layer (besar + kecil) biar sudut lebih "nyala"
--- tapi tetap sesuai tema Ocean (cyan/purple/green/amber).
--- Backward compatible:
---   addCornerGlows(parent, UDim2, transparency)
--- Advanced:
---   addCornerGlows(parent, { size=UDim2, smallSize=UDim2, transparency=0.03, smallTransparency=0.12 })
+-- Corner lights: dibuat 3x lipat lebih tebal & menyala terang (3 layers per corner)
 local function addCornerGlows(parent, sz, tr)
     local cfg = nil
     if type(sz) == "table" then
@@ -111,28 +106,36 @@ local function addCornerGlows(parent, sz, tr)
         cfg = { size = sz, transparency = tr }
     end
 
-    local big = cfg.size or UDim2.new(0, 260, 0, 260)
-    local bigTr = cfg.transparency or 0.02
+    local big = cfg.size or UDim2.new(0, 320, 0, 320)
+    local bigTr = 0.00 -- 100% opacity (no transparency for maximum thickness)
+
+    local med = UDim2.new(0, 220, 0, 220)
+    local medTr = 0.00
 
     local small = cfg.smallSize or UDim2.new(0, 140, 0, 140)
-    local smallTr = cfg.smallTransparency or 0.08
+    local smallTr = 0.00
 
-    -- offset supaya glow menyebar indah di 4 sudut
     local offsetBig = math.floor(big.X.Offset * 0.35)
+    local offsetMed = math.floor(med.X.Offset * 0.38)
     local offsetSmall = math.floor(small.X.Offset * 0.40)
 
-    -- Folder container for corner glow so toggle can easily reference
     local glowFolder = Instance.new("Folder")
     glowFolder.Name = "SuperThickCornerGlow"
     glowFolder.Parent = parent
 
-    -- BIG layer (spread glow)
-    local b1 = addGlow(glowFolder, UDim2.new(0, -offsetBig, 0, -offsetBig), P.GlowCyan, big, bigTr)
-    local b2 = addGlow(glowFolder, UDim2.new(1, -big.X.Offset + offsetBig, 0, -offsetBig), P.GlowPurple, big, bigTr)
-    local b3 = addGlow(glowFolder, UDim2.new(0, -offsetBig, 1, -big.Y.Offset + offsetBig), P.GlowGreen, big, bigTr)
-    local b4 = addGlow(glowFolder, UDim2.new(1, -big.X.Offset + offsetBig, 1, -big.Y.Offset + offsetBig), P.GlowAmber, big, bigTr)
+    -- LAYER 1: SUPER WIDE GLOW
+    addGlow(glowFolder, UDim2.new(0, -offsetBig, 0, -offsetBig), P.GlowCyan, big, bigTr)
+    addGlow(glowFolder, UDim2.new(1, -big.X.Offset + offsetBig, 0, -offsetBig), P.GlowPurple, big, bigTr)
+    addGlow(glowFolder, UDim2.new(0, -offsetBig, 1, -big.Y.Offset + offsetBig), P.GlowGreen, big, bigTr)
+    addGlow(glowFolder, UDim2.new(1, -big.X.Offset + offsetBig, 1, -big.Y.Offset + offsetBig), P.GlowAmber, big, bigTr)
 
-    -- SMALL layer (intense corner light)
+    -- LAYER 2: MEDIUM INTENSE GLOW
+    addGlow(glowFolder, UDim2.new(0, -offsetMed, 0, -offsetMed), P.GlowCyan, med, medTr)
+    addGlow(glowFolder, UDim2.new(1, -med.X.Offset + offsetMed, 0, -offsetMed), P.GlowPurple, med, medTr)
+    addGlow(glowFolder, UDim2.new(0, -offsetMed, 1, -med.Y.Offset + offsetMed), P.GlowGreen, med, medTr)
+    addGlow(glowFolder, UDim2.new(1, -med.X.Offset + offsetMed, 1, -med.Y.Offset + offsetMed), P.GlowAmber, med, medTr)
+
+    -- LAYER 3: CORE SUPER BRIGHT SPOTLIGHT
     local s1 = addGlow(glowFolder, UDim2.new(0, -offsetSmall, 0, -offsetSmall), P.GlowCyan, small, smallTr)
     local s2 = addGlow(glowFolder, UDim2.new(1, -small.X.Offset + offsetSmall, 0, -offsetSmall), P.GlowPurple, small, smallTr)
     local s3 = addGlow(glowFolder, UDim2.new(0, -offsetSmall, 1, -small.Y.Offset + offsetSmall), P.GlowGreen, small, smallTr)

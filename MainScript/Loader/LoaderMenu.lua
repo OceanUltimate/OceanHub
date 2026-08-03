@@ -185,24 +185,31 @@ local WrapperStroke = Instance.new("UIStroke", Wrapper)
 WrapperStroke.Color = CONFIG.OuterBorderColor
 WrapperStroke.Thickness = 2.5
 
-local function createSuperThickCornerLight(parent, position, color, size, zIndex, transparency)
+local function createSuperThickCornerLight(parent, position, color, size, zIndex)
     local Glow = Instance.new("ImageLabel")
     Glow.Name = "SuperThickCornerGlow"
-    Glow.Size = size or UDim2.new(0, 200, 0, 200)
+    Glow.Size = size or UDim2.new(0, 260, 0, 260)
     Glow.Position = position
     Glow.BackgroundTransparency = 1
     Glow.Image = "rbxassetid://5028857484"
     Glow.ImageColor3 = color
-    Glow.ImageTransparency = transparency or 0.02
+    Glow.ImageTransparency = 0.0
     Glow.ZIndex = zIndex or 1
     Glow.Parent = parent
     return Glow
 end
 
-createSuperThickCornerLight(Wrapper, UDim2.new(0, -70, 0, -70), Color3.fromRGB(56, 189, 248), UDim2.new(0, 240, 0, 240), 1, 0.02)
-createSuperThickCornerLight(Wrapper, UDim2.new(1, -170, 0, -70), Color3.fromRGB(129, 140, 248), UDim2.new(0, 240, 0, 240), 1, 0.02)
-createSuperThickCornerLight(Wrapper, UDim2.new(0, -70, 1, -170), Color3.fromRGB(52, 211, 153), UDim2.new(0, 240, 0, 240), 1, 0.02)
-createSuperThickCornerLight(Wrapper, UDim2.new(1, -170, 1, -170), Color3.fromRGB(251, 191, 36), UDim2.new(0, 240, 0, 240), 1, 0.02)
+-- Layer 1: Big Outer Glow
+createSuperThickCornerLight(Wrapper, UDim2.new(0, -90, 0, -90), Color3.fromRGB(56, 189, 248), UDim2.new(0, 280, 0, 280), 1)
+createSuperThickCornerLight(Wrapper, UDim2.new(1, -190, 0, -90), Color3.fromRGB(129, 140, 248), UDim2.new(0, 280, 0, 280), 1)
+createSuperThickCornerLight(Wrapper, UDim2.new(0, -90, 1, -190), Color3.fromRGB(52, 211, 153), UDim2.new(0, 280, 0, 280), 1)
+createSuperThickCornerLight(Wrapper, UDim2.new(1, -190, 1, -190), Color3.fromRGB(251, 191, 36), UDim2.new(0, 280, 0, 280), 1)
+
+-- Layer 2: Medium Core Glow (Stacked for 3x brightness)
+createSuperThickCornerLight(Wrapper, UDim2.new(0, -50, 0, -50), Color3.fromRGB(56, 189, 248), UDim2.new(0, 180, 0, 180), 1)
+createSuperThickCornerLight(Wrapper, UDim2.new(1, -130, 0, -50), Color3.fromRGB(129, 140, 248), UDim2.new(0, 180, 0, 180), 1)
+createSuperThickCornerLight(Wrapper, UDim2.new(0, -50, 1, -130), Color3.fromRGB(52, 211, 153), UDim2.new(0, 180, 0, 180), 1)
+createSuperThickCornerLight(Wrapper, UDim2.new(1, -130, 1, -130), Color3.fromRGB(251, 191, 36), UDim2.new(0, 180, 0, 180), 1)
 
 local MainCard = Instance.new("Frame", Wrapper)
 MainCard.Name = "MainCard"
