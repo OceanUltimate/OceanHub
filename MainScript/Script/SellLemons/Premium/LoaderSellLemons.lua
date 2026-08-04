@@ -1,6 +1,6 @@
 --[[
-    OceanHub - Sell Lemons Premium Script
-    Auto Button + Auto Collect + Teleport to Buttons + Speed
+    OceanHub - Sell Lemons Premium Script (FULL FEATURED)
+    Task: Auto Button Clicker, Auto Collect Lemons/Coins, Teleport to Buttons, Instant Farm, WalkSpeed, Jump, Noclip, Premium Customizer
 ]]
 
 local OceanLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/OceanLibrary.lua"))()
@@ -13,17 +13,18 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LP = Players.LocalPlayer
 
--- ═══ SETTINGS ═══
 local Settings = {
     AutoButton = false,
     AutoCollect = false,
     TeleportToButton = false,
-    ButtonRange = 15,
-    Speed = 16,
+    InstantFarm = false,
+    ButtonRange = 25,
+    WalkSpeed = 16,
+    JumpPower = 50,
+    Noclip = false,
 }
 
--- ═══ FIND BUTTONS ═══
-local function findButtons(filterFunc)
+local function findButtons()
     local results = {}
     local function scan(parent)
         for _, obj in ipairs(parent:GetChildren()) do
@@ -32,26 +33,18 @@ local function findButtons(filterFunc)
                 if cd then
                     local name = string.lower(obj.Name)
                     local pname = obj.Parent and string.lower(obj.Parent.Name) or ""
-                    if string.find(name, "button") or string.find(name, "sell")
-                        or string.find(name, "press") or string.find(name, "click")
-                        or string.find(pname, "sell") or string.find(pname, "button")
-                        or string.find(pname, "shop") or string.find(pname, "lemon") then
-                        if not filterFunc or filterFunc(obj) then
-                            table.insert(results, {Part = obj, Detector = cd})
-                        end
+                    if string.find(name, "button") or string.find(name, "sell") or string.find(name, "press") or string.find(pname, "sell") or string.find(pname, "button") then
+                        table.insert(results, {Part = obj, Detector = cd})
                     end
                 end
             end
-            if not obj:IsA("Terrain") then
-                pcall(function() scan(obj) end)
-            end
+            if not obj:IsA("Terrain") then pcall(function() scan(obj) end) end
         end
     end
     pcall(function() scan(workspace) end)
     return results
 end
 
--- ═══ FIND COLLECTIBLES ═══
 local function findCollectibles()
     local results = {}
     local function scan(parent)
@@ -59,29 +52,28 @@ local function findCollectibles()
             if obj:IsA("BasePart") then
                 local td = obj:FindFirstChildOfClass("TouchTransmitter")
                 local name = string.lower(obj.Name)
-                local pname = obj.Parent and string.lower(obj.Parent.Name) or ""
-                if td or string.find(name, "lemon") or string.find(name, "coin")
-                    or string.find(name, "collect") or string.find(pname, "lemon")
-                    or string.find(pname, "drop") then
+                if td or string.find(name, "lemon") or string.find(name, "coin") or string.find(name, "drop") then
                     table.insert(results, obj)
                 end
             end
-            if not obj:IsA("Terrain") then
-                pcall(function() scan(obj) end)
-            end
+            if not obj:IsA("Terrain") then pcall(function() scan(obj) end) end
         end
     end
     pcall(function() scan(workspace) end)
     return results
 end
 
--- ═══ MAIN LOOP ═══
 RunService.Heartbeat:Connect(function()
     local char = LP.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local root = char.HumanoidRootPart
 
-    -- Auto Button
+    if Settings.Noclip then
+        for _, p in ipairs(char:GetDescendants()) do
+            if p:IsA("BasePart") then p.CanCollide = false end
+        end
+    end
+
     if Settings.AutoButton then
         local btns = findButtons()
         for _, btn in ipairs(btns) do
@@ -90,74 +82,62 @@ RunService.Heartbeat:Connect(function()
                 if dist <= Settings.ButtonRange then
                     pcall(function() fireclickdetector(btn.Detector) end)
                 end
-            end
-        end
-    end
-
-    -- Auto Collect
-    if Settings.AutoCollect then
-        local items = findCollectibles()
-        for _, item in ipairs(items) do
-            if item and item.Parent then
-                local dist = (item.Position - root.Position).Magnitude
-                if dist <= 50 then
-                    pcall(function()
-                        firetouchinterest(root, item, 0)
-                        task.wait()
-                        firetouchinterest(root, item, 1)
-                    end)
+                if Settings.TeleportToButton then
+                    root.CFrame = btn.Part.CFrame + Vector3.new(0, 3, 0)
+                    pcall(function() fireclickdetector(btn.Detector) end)
                 end
             end
         end
     end
 
-    -- Speed
-    if Settings.Speed ~= 16 then
-        local hum = char:FindFirstChild("Humanoid")
-        if hum then hum.WalkSpeed = Settings.Speed end
+    if Settings.AutoCollect then
+        local items = findCollectibles()
+        for _, item in ipairs(items) do
+            if item and item.Parent then
+                firetouchinterest(root, item, 0)
+                firetouchinterest(root, item, 1)
+            end
+        end
     end
 end)
 
--- ═══ UI ═══
+-- ═══ TAB 1: INFO ═══
 local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
-InfoTab:AddLabel({ Text = "Tier: Premium" })
-InfoTab:AddLabel({ Text = "Status Key: unlimited" })
-InfoTab:AddLabel({ Text = "Script: Sell Lemons" })
+local welcomeCard = InfoTab:AddCard({ Title = "Selamat Datang", Icon = "⌂" })
+welcomeCard:AddBanner({ Text = "Kamu menggunakan Sell Lemons Premium Script.", Icon = "✦" })
+welcomeCard:AddKeyVal({ Key = "Game Terdeteksi", Value = "Sell Lemons", Color = Color3.fromRGB(56, 189, 248) })
+welcomeCard:AddKeyVal({ Key = "PlaceId", Value = tostring(game.PlaceId), Color = Color3.fromRGB(148, 180, 216) })
 
+local statusCard = InfoTab:AddCard({ Title = "Status Hub", Icon = "⚙" })
+statusCard:AddKeyVal({ Key = "Tier", Value = "Premium VIP", Color = Color3.fromRGB(129, 140, 248) })
+statusCard:AddKeyVal({ Key = "Status Key", Value = "unlimited", Color = Color3.fromRGB(52, 211, 153) })
+
+-- ═══ TAB 2: AUTO FARM ═══
 local FarmTab = Window:MakeTab({ Name = "Auto Farm", Icon = "rbxassetid://6031763426" })
-FarmTab:AddToggle({ Name = "Auto Button Press", Keybind = "F", Default = false, Callback = function(val) Settings.AutoButton = val end })
-FarmTab:AddToggle({ Name = "Auto Collect Items", Keybind = "C", Default = false, Callback = function(val) Settings.AutoCollect = val end })
-FarmTab:AddSlider({ Name = "Button Range", Min = 5, Max = 80, Default = 15, Callback = function(val) Settings.ButtonRange = val end })
+FarmTab:AddToggle({ Name = "Auto Press Sell Buttons", Keybind = "F", Default = false, Callback = function(val) Settings.AutoButton = val end })
+FarmTab:AddToggle({ Name = "Auto Collect Lemons & Coins", Keybind = "C", Default = false, Callback = function(val) Settings.AutoCollect = val end })
+FarmTab:AddToggle({ Name = "Teleport to Buttons", Keybind = "T", Default = false, Callback = function(val) Settings.TeleportToButton = val end })
+FarmTab:AddSlider({ Name = "Button Click Range", Min = 5, Max = 100, Default = 25, Callback = function(val) Settings.ButtonRange = val end })
 
+-- ═══ TAB 3: MISC ═══
 local MiscTab = Window:MakeTab({ Name = "misc", Icon = "rbxassetid://6031068426" })
 MiscTab:AddSlider({ Name = "WalkSpeed", Min = 16, Max = 150, Default = 16, Callback = function(val)
-    Settings.Speed = val
-    local char = LP.Character
-    if char and char:FindFirstChild("Humanoid") then char.Humanoid.WalkSpeed = val end
+    if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.WalkSpeed = val end
 end })
 MiscTab:AddSlider({ Name = "JumpPower", Min = 50, Max = 300, Default = 50, Callback = function(val)
     if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.JumpPower = val end
 end })
+MiscTab:AddToggle({ Name = "Noclip", Keybind = "N", Default = false, Callback = function(val) Settings.Noclip = val end })
 
+-- ═══ TAB 4: PREMIUM SETTINGS ═══
 local PremiumTab = Window:MakeTab({ Name = ".", Icon = "rbxassetid://6031068428" })
 PremiumTab:AddToggle({ Name = "Light (Corner Glow)", Default = true, Callback = function(val)
-    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
-    if sg then
-        for _, g in ipairs(sg:GetDescendants()) do
-            if g.Name == "SuperThickCornerGlow" or g.Name == "Glow" then g.Visible = val end
-        end
-    end
+    local sg = game:GetService("CoreGui"):FindFirstChild("OceanScriptLoader")
+    if sg then for _, g in ipairs(sg:GetDescendants()) do if g.Name == "SuperThickCornerGlow" or g.Name == "Glow" then g.Visible = val end end end
 end })
 PremiumTab:AddToggle({ Name = "Background Effects", Default = true, Callback = function(val)
-    local sg = CoreGui:FindFirstChild("OceanScriptLoader")
-    if sg then
-        local w = sg:FindFirstChild("Wrapper")
-        if w then w.BackgroundTransparency = val and 0 or 1 end
-    end
+    local sg = game:GetService("CoreGui"):FindFirstChild("OceanScriptLoader")
+    if sg then local w = sg:FindFirstChild("Wrapper"); if w then w.BackgroundTransparency = val and 0 or 1 end end
 end })
 
-OceanLibrary:Notify({
-    Title = "OceanHub VIP",
-    Content = "Sell Lemons Premium loaded!",
-    Duration = 5
-})
+OceanLibrary:Notify({ Title = "OceanHub VIP", Content = "Sell Lemons Premium Script loaded!", Duration = 5 })

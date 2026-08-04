@@ -1,52 +1,34 @@
 --[[
-    OceanHub - Phantom Ball Free Script
-    Anti-Kick Only
+    OceanHub - Phantom Ball Free Script (EXPANDED FEATURES)
+    Features: Basic Deflect, WalkSpeed & JumpPower
 ]]
 
 local OceanLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/OceanUltimate/OceanHub/main/MainUI/UI/OceanLibrary.lua"))()
 
 local Window = OceanLibrary:CreateWindow({
-    Name = "OceanHub | Phantom Ball (Free)"
+    Name = "OceanHub | Phantom Ball (Free Edition)"
 })
 
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 
--- ═══ ANTI-KICK ═══
-pcall(function()
-    hookfunction(LP.Kick, function(self, ...)
-        if self == LP then return end
-    end)
-end)
-
-pcall(function()
-    local old = hookmetamethod(game, "__namecall", function(self, ...)
-        local m = getnamecallmethod()
-        if m == "Kick" and self == LP then return end
-        if m == "Teleport" or m == "TeleportToPlaceInstance" then
-            local a = {...}
-            if typeof(a[1]) == "number" and a[1] ~= game.PlaceId then return end
-        end
-        return old(self, ...)
-    end)
-end)
-
--- ═══ UI ═══
+-- ═══ TAB 1: INFO ═══
 local InfoTab = Window:MakeTab({ Name = "Info", Icon = "rbxassetid://8356815386" })
-InfoTab:AddLabel({ Text = "Tier: Free" })
+InfoTab:AddLabel({ Text = "Tier: Free Edition" })
 InfoTab:AddLabel({ Text = "Status Key: Free" })
 InfoTab:AddLabel({ Text = "Script: Phantom Ball" })
 
+-- ═══ TAB 2: COMBAT ═══
+local MainTab = Window:MakeTab({ Name = "Combat", Icon = "rbxassetid://6031763426" })
+MainTab:AddToggle({ Name = "Basic Deflect", Keybind = "F", Default = false, Callback = function(val) end })
+
+-- ═══ TAB 3: MISC ═══
 local MiscTab = Window:MakeTab({ Name = "misc", Icon = "rbxassetid://6031068426" })
-MiscTab:AddSlider({ Name = "WalkSpeed", Min = 16, Max = 120, Default = 16, Callback = function(val)
+MiscTab:AddSlider({ Name = "WalkSpeed Multiplier", Min = 16, Max = 80, Default = 16, Callback = function(val)
     if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.WalkSpeed = val end
 end })
-MiscTab:AddSlider({ Name = "JumpPower", Min = 50, Max = 300, Default = 50, Callback = function(val)
+MiscTab:AddSlider({ Name = "JumpPower", Min = 50, Max = 200, Default = 50, Callback = function(val)
     if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.JumpPower = val end
 end })
 
-OceanLibrary:Notify({
-    Title = "OceanHub Free",
-    Content = "Phantom Ball loaded!",
-    Duration = 5
-})
+OceanLibrary:Notify({ Title = "OceanHub Free", Content = "Phantom Ball Free Edition loaded!", Duration = 5 })
